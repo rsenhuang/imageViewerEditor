@@ -1,18 +1,18 @@
 <template>
   <div>
-    <div class="img_container">
+    <!-- <div class="img_container">
       <div v-for="(url, index) in imgList" :key="index">
         <img v-if="index=== active" :src="url" />
       </div>
       <div id="image"></div>
-    </div>
+    </div> -->
     <Previewer :imgs="imgList" />
   </div>
 </template>
 
 <script>
 import "viewerjs/dist/viewer.css";
-import Viewer from "viewerjs";
+// import Viewer from "viewerjs";
 import Previewer from "@/components/Previewer";
 export default {
   name: "App",
@@ -30,12 +30,12 @@ export default {
     };
   },
   mounted() {
-    const viewer = new Viewer(document.getElementById("image"), {
-      inline: true,
-      viewed() {
-        viewer.zoomTo(1);
-      }
-    });
+    // const viewer = new Viewer(document.getElementById("image"), {
+    //   inline: true,
+    //   viewed() {
+    //     viewer.zoomTo(1);
+    //   }
+    // });
   }
 };
 </script>
