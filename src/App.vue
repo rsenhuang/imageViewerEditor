@@ -6,7 +6,7 @@
       </div>
       <div id="image"></div>
     </div> -->
-    <Previewer :imgs="imgList" />
+    <Previewer :imgUrl="imgList[0]" />
   </div>
 </template>
 

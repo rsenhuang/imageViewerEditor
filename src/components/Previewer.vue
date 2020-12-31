@@ -18,7 +18,7 @@
       <div class="act_btn"
            @click="handleScale(false)">缩小</div>
       <div class="act_btn">裁剪</div>
-      <div class="act_btn">涂鸦</div>
+      <div class="act_btn" @click="toggleGraffiti">涂鸦</div>
       <div class="act_btn"
            @click="reset">还原</div>
       <div class="act_btn"
@@ -36,16 +36,13 @@
 
 <script>
 let cxt = undefined;
-// const scopeX = 200;
-// const scopeY = 200;
+let canvas = undefined;
 export default {
   name: "Previewer",
   props: {
-    imgs: {
-      type: Array,
-      default() {
-        return [];
-      }
+    imgUrl: {
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -64,7 +61,7 @@ export default {
     };
   },
   mounted() {
-    const canvas = document.getElementById("canvas");
+    canvas = document.getElementById("canvas");
     cxt = canvas.getContext("2d");
     let image = new Image();
     image.onload = () => {
@@ -74,7 +71,7 @@ export default {
       console.log("loaded err", err);
     };
     image.setAttribute("crossOrigin", "anonymous");
-    image.src = this.imgs[0];
+    image.src = this.imgUrl;
     image.addEventListener("load", () => {
       let img = this.computedSize(image);
       this.sketchWidth = img.width;
@@ -84,7 +81,10 @@ export default {
       cxt.lineWidth = 1;
       this.$nextTick(() => {
         // 动态修改canvas宽高会导致canvas重新渲染
-        cxt.translate(this.scopeX / 2, this.scopeY / 2);
+        // cxt.translate(this.scopeX / 2, this.scopeY / 2); 
+        // this.center.x += this.scopeX / 2;
+        // this.center.y += this.scopeY / 2;
+        this.moveCenter(this.scopeX / 2, this.scopeY / 2);
         cxt.drawImage(
           image,
           -img.width / 2,
@@ -96,17 +96,22 @@ export default {
     });
   },
   methods: {
+    moveCenter(x = 0, y = 0){ 
+      cxt.translate(x, y);
+      this.center.x += x;
+      this.center.y += y;
+    },
     // 计算宽高
-    computedSize(image = {}) {
-      if (image.width && image.height) {
-        if (image.width > image.height) {
-          this.scopeX = this.scopeY = image.width || 1000;
-        } else {
-          this.scopeX = this.scopeY = image.height || 1000;
-        }
-      }
-      // this.scopeX = image.width;
-      // this.scopeY = image.height;
+    computedSize(image = {}) { 
+      let long = image.width > image.height ? image.width : image.height
+      let short = image.width > image.height ? image.height : image.width
+      if(this.direction % 2){ 
+        this.scopeX = long;
+        this.scopeY = short
+      } else { 
+        this.scopeX = short;
+        this.scopeY = long
+      }   
       return {
         height: image.height,
         width: image.width
@@ -133,12 +138,12 @@ export default {
         2 * this.scopeX,
         2 * this.scopeY
       );
-      cxt.rotate(((clockwise ? 90 : -90) * Math.PI) / 180);
       let image = new Image();
       image.setAttribute("crossOrigin", "anonymous");
-      image.src = this.imgs[0];
-      image.addEventListener("load", () => {
-        let img = this.computedSize(image);
+      image.src = this.imgUrl;
+      image.addEventListener("load", () => { 
+        this.moveCenter(-this.scopeX / 2, -this.scopeY / 2)
+        let img = this.computedSize(image); 
         this.$nextTick(() => {
           this.sketchWidth =
             (this.direction % 2 ? img.width : img.height) * this.scale;
@@ -149,7 +154,9 @@ export default {
           }
           if (this.sketchHeight > this.scopeY) {
             this.sketchHeight = this.scopeY;
-          }
+          } 
+          this.moveCenter(this.scopeX / 2, this.scopeY / 2)
+          cxt.rotate(((5 - this.direction) * -90 * Math.PI) / 180);
           cxt.drawImage(
             image,
             -img.width / 2,
@@ -160,6 +167,7 @@ export default {
         });
       });
     },
+
     // 缩放
     handleScale(big = true) {
       let size = 1 + (big ? 0.2 : -0.2);
@@ -172,7 +180,7 @@ export default {
       );
       cxt.scale(size, size);
       let image = new Image();
-      image.src = this.imgs[0];
+      image.src = this.imgUrl;
       image.setAttribute("crossOrigin", "anonymous");
       image.addEventListener("load", () => {
         let img = this.computedSize(image);
@@ -200,6 +208,10 @@ export default {
       this.sketchWidth = 0;
       this.sketchHeight = 0;
       cxt.lineWidth = 1;
+      this.center = {
+        x: 0,
+        y: 0,
+      }
       cxt.clearRect(
         -this.scopeX,
         -this.scopeY,
@@ -208,16 +220,24 @@ export default {
       );
       let image = new Image();
       image.setAttribute("crossOrigin", "anonymous");
-      image.src = this.imgs[0];
-      image.addEventListener("load", () => {
+      image.src = this.imgUrl;
+      this.scopeX = image.width;
+      this.scopeY = image.height;
+      image.addEventListener("load", () => { 
         this.$nextTick(() => {
           // 动态修改canvas宽高会导致canvas重新渲染
           // 缩放复原
           cxt.scale(1 / this.scale, 1 / this.scale);
           this.scale = 1;
-          // 旋转复原
-          cxt.rotate(((5 - this.direction) * 90 * Math.PI) / 180);
-          this.direction = 1;
+          // 旋转复原 
+          if (this.direction % 2){ 
+            cxt.rotate(((5 - this.direction) * 90 * Math.PI) / 180);
+          } else {  
+            this.moveCenter(image.width / 2 , image.height / 2)
+          }
+          this.direction = 1; 
+          this.sketchWidth = image.width;
+          this.sketchHeight = image.height; 
           cxt.drawImage(
             image,
             -image.width / 2,
@@ -227,6 +247,30 @@ export default {
           );
         });
       });
+    },
+    // 启动涂鸦
+    toggleGraffiti(active = true){ 
+      if (active){
+      canvas.addEventListener('mousedown',this.DrawLine)
+      } else {
+        canvas.removeEventListener('mousedown',this.DrawLine)
+      }
+    },
+    // 划线
+    DrawLine(e){ 
+      let ox = 1 / this.scale * (e.pageX - canvas.offsetLeft - this.center.x),
+          oy = 1 / this.scale * (e.pageY - canvas.offsetTop - this.center.y);
+      console.log(e, canvas.offsetLeft, canvas.offsetTop, ox, oy)
+      cxt.moveTo(ox, oy);
+      canvas.onmousemove = event => { 
+        let ox2 = 1 / this.scale * (event.pageX - canvas.offsetLeft - this.center.x),
+            oy2 = 1 / this.scale * (event.pageY - canvas.offsetTop - this.center.y);
+        cxt.lineTo(ox2, oy2);
+        cxt.stroke();
+      }
+      canvas.onmouseup = () => { 
+        canvas.onmousemove = null;
+      } 
     },
     // 生成图片
     canvasToUrl() {
