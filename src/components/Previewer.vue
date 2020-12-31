@@ -75,15 +75,10 @@ export default {
     image.addEventListener("load", () => {
       let img = this.computedSize(image);
       this.sketchWidth = img.width;
-      this.sketchHeight = img.height;
-      this.center.x = this.scopeX / 2;
-      this.center.y = this.scopeY / 2;
+      this.sketchHeight = img.height; 
       cxt.lineWidth = 1;
       this.$nextTick(() => {
-        // 动态修改canvas宽高会导致canvas重新渲染
-        // cxt.translate(this.scopeX / 2, this.scopeY / 2); 
-        // this.center.x += this.scopeX / 2;
-        // this.center.y += this.scopeY / 2;
+        // 动态修改canvas宽高会导致canvas重新渲染 
         this.moveCenter(this.scopeX / 2, this.scopeY / 2);
         cxt.drawImage(
           image,
@@ -96,10 +91,20 @@ export default {
     });
   },
   methods: {
-    moveCenter(x = 0, y = 0){ 
+    // x: x轴，y：y轴 reset: 重置原点
+    moveCenter(x = 0, y = 0, reset = false){
+      console.log('原中心点', this.center.x, this.center.y)
+      if (reset) {
+        this.center = {
+          x: 0,
+          y: 0
+        } 
+        // cxt.translate(-x, -y);
+      } 
       cxt.translate(x, y);
       this.center.x += x;
       this.center.y += y;
+      console.log('end', this.center.x, this.center.y)
     },
     // 计算宽高
     computedSize(image = {}) { 
@@ -225,15 +230,21 @@ export default {
       this.scopeY = image.height;
       image.addEventListener("load", () => { 
         this.$nextTick(() => {
-          // 动态修改canvas宽高会导致canvas重新渲染
+          /*
+          *  重点注意：动态修改canvas宽高会导致canvas重新渲染，原点回归左上顶角
+          */
           // 缩放复原
           cxt.scale(1 / this.scale, 1 / this.scale);
           this.scale = 1;
           // 旋转复原 
           if (this.direction % 2){ 
-            cxt.rotate(((5 - this.direction) * 90 * Math.PI) / 180);
+            // if (this.direction === 1){ 
+            //   this.moveCenter(image.width / 2 , image.height / 2, true);
+            // } else{
+              cxt.rotate(((5 - this.direction) * 90 * Math.PI) / 180);
+            // }
           } else {  
-            this.moveCenter(image.width / 2 , image.height / 2)
+            this.moveCenter(image.width / 2 , image.height / 2, true);
           }
           this.direction = 1; 
           this.sketchWidth = image.width;
@@ -260,7 +271,7 @@ export default {
     DrawLine(e){ 
       let ox = 1 / this.scale * (e.pageX - canvas.offsetLeft - this.center.x),
           oy = 1 / this.scale * (e.pageY - canvas.offsetTop - this.center.y);
-      console.log(e, canvas.offsetLeft, canvas.offsetTop, ox, oy)
+      console.log(this.center, canvas.offsetLeft, canvas.offsetTop, ox, oy)
       cxt.moveTo(ox, oy);
       canvas.onmousemove = event => { 
         let ox2 = 1 / this.scale * (event.pageX - canvas.offsetLeft - this.center.x),
