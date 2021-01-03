@@ -1,35 +1,25 @@
 <template>
   <div class="canvas_container">
-    <canvas id="canvas"
-            :width="scopeX"
-            :height="scopeY"
-            style="border: 1px dashed #ddd;"></canvas>
-    <canvas id="sketch"
-            :width="sketchWidth"
-            :height="sketchHeight"
-            style="border: 1px dashed #ddd;"></canvas>
+    <canvas id="canvas" :width="scopeX" :height="scopeY" style="border: 1px dashed #ddd;"></canvas>
+    <canvas
+      id="sketch"
+      :width="sketchWidth"
+      :height="sketchHeight"
+      style="border: 1px dashed #ddd;"
+    ></canvas>
     <div class="acts">
-      <div class="act_btn"
-           @click="handleRotate(false)">逆时针旋转</div>
-      <div class="act_btn"
-           @click="handleRotate(true)">顺时针旋转</div>
-      <div class="act_btn"
-           @click="handleScale(true)">放大</div>
-      <div class="act_btn"
-           @click="handleScale(false)">缩小</div>
-      <div class="act_btn">裁剪</div>
+      <div class="act_btn" @click="handleRotate(false)">逆时针旋转</div>
+      <div class="act_btn" @click="handleRotate(true)">顺时针旋转</div>
+      <div class="act_btn" @click="handleScale(true)">放大</div>
+      <div class="act_btn" @click="handleScale(false)">缩小</div>
+      <div class="act_btn" @click="toggleCut">裁剪</div>
       <div class="act_btn" @click="toggleGraffiti">涂鸦</div>
-      <div class="act_btn"
-           @click="reset">还原</div>
-      <div class="act_btn"
-           @click="canvasToUrl">保存</div>
+      <div class="act_btn" @click="reset">还原</div>
+      <div class="act_btn" @click="canvasToUrl">保存</div>
     </div>
     <div>
       <div>效果图</div>
-      <img v-if="endImage"
-           :src="endImage"
-           alt=""
-           height="300" />
+      <img v-if="endImage" :src="endImage" alt height="300" />
     </div>
   </div>
 </template>
@@ -42,7 +32,7 @@ export default {
   props: {
     imgUrl: {
       type: String,
-      default: ''
+      default: ""
     }
   },
   data() {
@@ -57,7 +47,13 @@ export default {
       direction: 1, // 旋转角度1-4：0、90°、180°、270°
       scale: 1, // 缩放比例
       scopeX: 1000, // 图片大小（宽）
-      scopeY: 1000 // 图片大小（高）
+      scopeY: 1000, // 图片大小（高）
+      canCut: false, // 是否启用裁剪
+      cutStartX: 0, // 裁剪开始坐标x
+      cutStartY: 0, // 裁剪开始左边y
+      cutWidth: 100, // 裁剪区宽
+      cutHeight: 100, // 裁剪区高
+      startCut: false // 选择裁剪区
     };
   },
   mounted() {
@@ -75,10 +71,10 @@ export default {
     image.addEventListener("load", () => {
       let img = this.computedSize(image);
       this.sketchWidth = img.width;
-      this.sketchHeight = img.height; 
+      this.sketchHeight = img.height;
       cxt.lineWidth = 1;
       this.$nextTick(() => {
-        // 动态修改canvas宽高会导致canvas重新渲染 
+        // 动态修改canvas宽高会导致canvas重新渲染
         this.moveCenter(this.scopeX / 2, this.scopeY / 2);
         cxt.drawImage(
           image,
@@ -92,31 +88,31 @@ export default {
   },
   methods: {
     // x: x轴，y：y轴 reset: 重置原点
-    moveCenter(x = 0, y = 0, reset = false){
-      console.log('原中心点', this.center.x, this.center.y)
+    moveCenter(x = 0, y = 0, reset = false) {
+      console.log("原中心点", this.center.x, this.center.y);
       if (reset) {
         this.center = {
           x: 0,
           y: 0
-        } 
+        };
         // cxt.translate(-x, -y);
-      } 
+      }
       cxt.translate(x, y);
       this.center.x += x;
       this.center.y += y;
-      console.log('end', this.center.x, this.center.y)
+      console.log("end", this.center.x, this.center.y);
     },
     // 计算宽高
-    computedSize(image = {}) { 
-      let long = image.width > image.height ? image.width : image.height
-      let short = image.width > image.height ? image.height : image.width
-      if(this.direction % 2){ 
+    computedSize(image = {}) {
+      let long = image.width > image.height ? image.width : image.height;
+      let short = image.width > image.height ? image.height : image.width;
+      if (this.direction % 2) {
         this.scopeX = long;
-        this.scopeY = short
-      } else { 
+        this.scopeY = short;
+      } else {
         this.scopeX = short;
-        this.scopeY = long
-      }   
+        this.scopeY = long;
+      }
       return {
         height: image.height,
         width: image.width
@@ -146,9 +142,9 @@ export default {
       let image = new Image();
       image.setAttribute("crossOrigin", "anonymous");
       image.src = this.imgUrl;
-      image.addEventListener("load", () => { 
-        this.moveCenter(-this.scopeX / 2, -this.scopeY / 2)
-        let img = this.computedSize(image); 
+      image.addEventListener("load", () => {
+        this.moveCenter(-this.scopeX / 2, -this.scopeY / 2);
+        let img = this.computedSize(image);
         this.$nextTick(() => {
           this.sketchWidth =
             (this.direction % 2 ? img.width : img.height) * this.scale;
@@ -159,8 +155,8 @@ export default {
           }
           if (this.sketchHeight > this.scopeY) {
             this.sketchHeight = this.scopeY;
-          } 
-          this.moveCenter(this.scopeX / 2, this.scopeY / 2)
+          }
+          this.moveCenter(this.scopeX / 2, this.scopeY / 2);
           cxt.rotate(((5 - this.direction) * -90 * Math.PI) / 180);
           cxt.drawImage(
             image,
@@ -169,6 +165,7 @@ export default {
             img.width,
             img.height
           );
+          this.showCenter();
         });
       });
     },
@@ -205,6 +202,7 @@ export default {
             img.width,
             img.height
           );
+          this.showCenter();
         });
       });
     },
@@ -215,8 +213,8 @@ export default {
       cxt.lineWidth = 1;
       this.center = {
         x: 0,
-        y: 0,
-      }
+        y: 0
+      };
       cxt.clearRect(
         -this.scopeX,
         -this.scopeY,
@@ -228,27 +226,27 @@ export default {
       image.src = this.imgUrl;
       this.scopeX = image.width;
       this.scopeY = image.height;
-      image.addEventListener("load", () => { 
+      image.addEventListener("load", () => {
         this.$nextTick(() => {
           /*
-          *  重点注意：动态修改canvas宽高会导致canvas重新渲染，原点回归左上顶角
-          */
+           *  重点注意：动态修改canvas宽高会导致canvas重新渲染，原点回归左上顶角
+           */
           // 缩放复原
           cxt.scale(1 / this.scale, 1 / this.scale);
           this.scale = 1;
-          // 旋转复原 
-          if (this.direction % 2){ 
-            // if (this.direction === 1){ 
+          // 旋转复原
+          if (this.direction % 2) {
+            // if (this.direction === 1){
             //   this.moveCenter(image.width / 2 , image.height / 2, true);
             // } else{
-              cxt.rotate(((5 - this.direction) * 90 * Math.PI) / 180);
+            cxt.rotate(((5 - this.direction) * 90 * Math.PI) / 180);
             // }
-          } else {  
-            this.moveCenter(image.width / 2 , image.height / 2, true);
+          } else {
+            this.moveCenter(image.width / 2, image.height / 2, true);
           }
-          this.direction = 1; 
+          this.direction = 1;
           this.sketchWidth = image.width;
-          this.sketchHeight = image.height; 
+          this.sketchHeight = image.height;
           cxt.drawImage(
             image,
             -image.width / 2,
@@ -256,32 +254,110 @@ export default {
             image.width,
             image.height
           );
+          this.showCenter();
         });
       });
     },
+    // 启动裁剪
+    toggleCut() {
+      if (!this.canCut) {
+        this.canCut = true;
+        this.cutStartX = -50;
+        this.cutStartY = -50;
+        this.setCutArea();
+        canvas.addEventListener("mouseover", e => {
+          let ox =
+              (1 / this.scale) * (e.pageX - canvas.offsetLeft - this.center.x),
+            oy =
+              (1 / this.scale) * (e.pageY - canvas.offsetTop - this.center.y);
+          console.log(ox, oy);
+        });
+      }
+    },
+    // 标识中心
+    showCenter() {
+      cxt.beginPath();
+      cxt.fillStyle = "blue";
+      cxt.rect(-5, -5, 10, 10);
+      cxt.fill();
+      cxt.closePath();
+    },
+    // 裁剪范围
+    setCutArea() {
+      cxt.beginPath();
+      cxt.fillStyle = "rgba(0, 0, 0, 0.4)";
+      // 遮盖区共四部分 左、右、中上、中下
+      cxt.rect(
+        -this.sketchWidth / 2,
+        -this.sketchHeight / 2,
+        Math.abs(this.cutStartX + this.sketchWidth / 2),
+        Math.abs(this.sketchHeight)
+      );
+      cxt.rect(
+        this.cutStartX + this.cutWidth,
+        -this.sketchHeight / 2,
+        Math.abs(this.sketchWidth / 2 - (this.cutStartX + this.cutWidth)),
+        Math.abs(this.sketchHeight)
+      );
+      cxt.rect(
+        this.cutStartX,
+        -this.sketchHeight / 2,
+        this.cutWidth,
+        Math.abs(this.sketchHeight / 2 + this.cutStartY)
+      );
+      cxt.rect(
+        this.cutStartX,
+        this.cutStartY + this.cutHeight,
+        this.cutWidth,
+        Math.abs(this.sketchHeight - this.cutStartY) / 2
+      );
+      cxt.fill();
+      cxt.closePath();
+      cxt.beginPath();
+      cxt.fillStyle = "white";
+      // 裁剪边框
+      cxt.rect(this.cutStartX - 1, this.cutStartY - 1, 10, 3);
+      cxt.rect(this.cutStartX - 1, this.cutStartY - 1, 3, 10);
+      cxt.rect(
+        this.cutStartX  + this.cutWidth - 2,
+        this.cutStartY  + this.cutHeight - 9,
+        3,
+        10
+      );
+      cxt.rect(
+        this.cutStartX + this.cutWidth - 9,
+        this.cutStartY + this.cutHeight - 2,
+        10,
+        3
+      );
+      cxt.fill();
+      cxt.closePath();
+    },
     // 启动涂鸦
-    toggleGraffiti(active = true){ 
-      if (active){
-      canvas.addEventListener('mousedown',this.DrawLine)
+    toggleGraffiti(active = true) {
+      if (active) {
+        canvas.addEventListener("mousedown", this.DrawLine);
       } else {
-        canvas.removeEventListener('mousedown',this.DrawLine)
+        canvas.removeEventListener("mousedown", this.DrawLine);
       }
     },
     // 划线
-    DrawLine(e){ 
-      let ox = 1 / this.scale * (e.pageX - canvas.offsetLeft - this.center.x),
-          oy = 1 / this.scale * (e.pageY - canvas.offsetTop - this.center.y);
-      console.log(this.center, canvas.offsetLeft, canvas.offsetTop, ox, oy)
+    DrawLine(e) {
+      let ox = (1 / this.scale) * (e.pageX - canvas.offsetLeft - this.center.x),
+        oy = (1 / this.scale) * (e.pageY - canvas.offsetTop - this.center.y);
       cxt.moveTo(ox, oy);
-      canvas.onmousemove = event => { 
-        let ox2 = 1 / this.scale * (event.pageX - canvas.offsetLeft - this.center.x),
-            oy2 = 1 / this.scale * (event.pageY - canvas.offsetTop - this.center.y);
+      canvas.onmousemove = event => {
+        let ox2 =
+            (1 / this.scale) *
+            (event.pageX - canvas.offsetLeft - this.center.x),
+          oy2 =
+            (1 / this.scale) * (event.pageY - canvas.offsetTop - this.center.y);
         cxt.lineTo(ox2, oy2);
         cxt.stroke();
-      }
-      canvas.onmouseup = () => { 
+      };
+      canvas.onmouseup = () => {
         canvas.onmousemove = null;
-      } 
+      };
     },
     // 生成图片
     canvasToUrl() {
@@ -322,11 +398,14 @@ export default {
   padding: 10px;
   width: 100%;
   display: inline-block;
+  position: relative;
 }
 .acts {
   display: flex;
   flex-direction: row;
   align-items: center;
+  position: absolute;
+  top: 600px;
 }
 .act_btn {
   margin-right: 20px;
