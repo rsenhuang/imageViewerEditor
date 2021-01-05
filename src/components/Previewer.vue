@@ -1,12 +1,21 @@
 <template>
   <div class="canvas_container">
-    <canvas id="canvas" :width="scopeX" :height="scopeY" style="border: 1px dashed #ddd;"></canvas>
+    <div class="img_container" :style="{width: minWidth + 'px', height: minWidth + 'px'}">
+      <canvas id="canvas" :width="scopeX" :height="scopeY" style="border: 1px dashed #ddd;"></canvas>
+      <div id="cut_area" v-show="canCut" :style="{width: sketchWidth + 'px', height: sketchHeight + 'px'}">
+        <div id="cut_content"></div>
+        <div id="cut_left"></div>
+        <div id="cut_right"></div>
+        <div id="cut_top"></div>
+        <div id="cut_bottom"></div>
+      </div>
+    </div>
     <canvas
       id="sketch"
       :width="sketchWidth"
       :height="sketchHeight"
       style="border: 1px dashed #ddd;"
-    ></canvas>
+    ></canvas> 
     <div class="acts">
       <div class="act_btn" @click="handleRotate(false)">逆时针旋转</div>
       <div class="act_btn" @click="handleRotate(true)">顺时针旋转</div>
@@ -24,7 +33,7 @@
   </div>
 </template>
 
-<script>
+<script> 
 let cxt = undefined;
 let canvas = undefined;
 export default {
@@ -46,6 +55,7 @@ export default {
       sketchHeight: 0, // 效果
       direction: 1, // 旋转角度1-4：0、90°、180°、270°
       scale: 1, // 缩放比例
+      minWidth: 1000, // 容器宽高
       scopeX: 1000, // 图片大小（宽）
       scopeY: 1000, // 图片大小（高）
       canCut: false, // 是否启用裁剪
@@ -113,6 +123,7 @@ export default {
         this.scopeX = short;
         this.scopeY = long;
       }
+      this.minWidth = long;
       return {
         height: image.height,
         width: image.width
@@ -283,55 +294,108 @@ export default {
       cxt.closePath();
     },
     // 裁剪范围
-    setCutArea() {
-      cxt.beginPath();
-      cxt.fillStyle = "rgba(0, 0, 0, 0.4)";
-      // 遮盖区共四部分 左、右、中上、中下
-      cxt.rect(
-        -this.sketchWidth / 2,
-        -this.sketchHeight / 2,
-        Math.abs(this.cutStartX + this.sketchWidth / 2),
-        Math.abs(this.sketchHeight)
-      );
-      cxt.rect(
-        this.cutStartX + this.cutWidth,
-        -this.sketchHeight / 2,
-        Math.abs(this.sketchWidth / 2 - (this.cutStartX + this.cutWidth)),
-        Math.abs(this.sketchHeight)
-      );
-      cxt.rect(
-        this.cutStartX,
-        -this.sketchHeight / 2,
-        this.cutWidth,
-        Math.abs(this.sketchHeight / 2 + this.cutStartY)
-      );
-      cxt.rect(
-        this.cutStartX,
-        this.cutStartY + this.cutHeight,
-        this.cutWidth,
-        Math.abs(this.sketchHeight - this.cutStartY) / 2
-      );
-      cxt.fill();
-      cxt.closePath();
-      cxt.beginPath();
-      cxt.fillStyle = "white";
-      // 裁剪边框
-      cxt.rect(this.cutStartX - 1, this.cutStartY - 1, 10, 3);
-      cxt.rect(this.cutStartX - 1, this.cutStartY - 1, 3, 10);
-      cxt.rect(
-        this.cutStartX  + this.cutWidth - 2,
-        this.cutStartY  + this.cutHeight - 9,
-        3,
-        10
-      );
-      cxt.rect(
-        this.cutStartX + this.cutWidth - 9,
-        this.cutStartY + this.cutHeight - 2,
-        10,
-        3
-      );
-      cxt.fill();
-      cxt.closePath();
+    setCutArea() { 
+      let cutContent = document.getElementById("cut_content"),
+      cutLeft = document.getElementById("cut_left"),
+      cutRight = document.getElementById("cut_right"),
+      cutTop = document.getElementById("cut_top"),
+      cutBottom = document.getElementById("cut_bottom")
+      cutLeft.style.background = 'rgba(0,0,0,0.3)';
+      cutRight.style.background = 'rgba(0,0,0,0.3)';
+      cutTop.style.background = 'rgba(0,0,0,0.3)';
+      cutBottom.style.background = 'rgba(0,0,0,0.3)'; 
+      this.setStyle(cutLeft, {
+        width: Math.abs(this.cutStartX + this.sketchWidth / 2) + 'px',
+        height: this.sketchHeight + 'px',
+        top: 0
+      })
+      this.setStyle(cutRight, {
+        width: Math.abs(this.sketchWidth / 2 - (this.cutStartX + this.cutWidth)) + 'px',
+        height: this.sketchHeight + 'px',
+        top: 0,
+        right: 0
+      }) 
+      this.setStyle(cutTop, {
+        width: this.cutWidth + 'px',
+        height: Math.abs(this.sketchHeight / 2 + this.cutStartY) + 'px',
+        top: 0,
+        left: Math.abs(this.cutStartX + this.sketchWidth / 2) + 'px'
+      })
+      this.setStyle(cutBottom, {
+        width: this.cutWidth + 'px',
+        height: Math.abs(this.sketchHeight / 2 + this.cutStartY)  + 'px',
+        top: Math.abs(this.sketchHeight / 2 + this.cutStartY) + this.cutHeight + 'px',
+        left: Math.abs(this.cutStartX + this.sketchWidth / 2) + 'px'
+      }) 
+      this.setStyle(cutContent, {
+        border: '1px solid white',
+        width: this.cutWidth + 'px',
+        height: this.cutHeight + 'px',
+        top: Math.abs(this.sketchHeight / 2 + this.cutStartY) - 1 + 'px',
+        left: Math.abs(this.cutStartX + this.sketchWidth / 2) - 1 + 'px',
+        cursor: 'move',
+      })
+      cutContent.addEventListener('mousedown', e => {
+        console.log('e', e)
+        cutContent.addEventListener('mousemove', moveEvent => {
+          console.log('move', moveEvent);
+        })
+        // cutContent.addEventListener('mouseup', )
+      })
+      // cxt.beginPath();
+      // cxt.fillStyle = "rgba(0, 0, 0, 0.4)";
+      // // 遮盖区共四部分 左、右、中上、中下
+      // cxt.rect(
+      //   -this.sketchWidth / 2,
+      //   -this.sketchHeight / 2,
+      //   Math.abs(this.cutStartX + this.sketchWidth / 2),
+      //   Math.abs(this.sketchHeight)
+      // );
+      // cxt.rect(
+      //   this.cutStartX + this.cutWidth,
+      //   -this.sketchHeight / 2,
+      //   Math.abs(this.sketchWidth / 2 - (this.cutStartX + this.cutWidth)),
+      //   Math.abs(this.sketchHeight)
+      // );
+      // cxt.rect(
+      //   this.cutStartX,
+      //   -this.sketchHeight / 2,
+      //   this.cutWidth,
+      //   Math.abs(this.sketchHeight / 2 + this.cutStartY)
+      // );
+      // cxt.rect(
+      //   this.cutStartX,
+      //   this.cutStartY + this.cutHeight,
+      //   this.cutWidth,
+      //   Math.abs(this.sketchHeight - this.cutStartY) / 2
+      // );
+      // cxt.fill();
+      // cxt.closePath();
+      // cxt.beginPath();
+      // cxt.fillStyle = "white";
+      // // 裁剪边框
+      // cxt.rect(this.cutStartX - 1, this.cutStartY - 1, 10, 3);
+      // cxt.rect(this.cutStartX - 1, this.cutStartY - 1, 3, 10);
+      // cxt.rect(
+      //   this.cutStartX  + this.cutWidth - 2,
+      //   this.cutStartY  + this.cutHeight - 9,
+      //   3,
+      //   10
+      // );
+      // cxt.rect(
+      //   this.cutStartX + this.cutWidth - 9,
+      //   this.cutStartY + this.cutHeight - 2,
+      //   10,
+      //   3
+      // );
+      // cxt.fill();
+      // cxt.closePath();
+    },
+    // 设置样式
+    setStyle(dom, css){
+      for (let prop in css){
+        dom.style[prop] = css[prop]
+      }
     },
     // 启动涂鸦
     toggleGraffiti(active = true) {
@@ -399,6 +463,23 @@ export default {
   width: 100%;
   display: inline-block;
   position: relative;
+  .img_container{
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    #cut_area{
+      position: absolute;  
+      z-index: 100;
+      #cut_content, #cut_left, #cut_right, #cut_top, #cut_bottom{
+        position: absolute;
+      } 
+    }
+  }
+  #sketch{
+    display: inline;
+  }
 }
 .acts {
   display: flex;
