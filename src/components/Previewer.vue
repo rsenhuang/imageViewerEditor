@@ -74,6 +74,7 @@ export default {
       scopeX: 1000, // 图片大小（宽）
       scopeY: 1000, // 图片大小（高）
       canCut: false, // 是否启用裁剪
+      originSize: 50, // 裁剪区默认大小（1/2宽高）
       cutStartX: 0, // 裁剪开始坐标x
       cutStartY: 0, // 裁剪开始左边y
       cutWidth: 100, // 裁剪区宽
@@ -234,8 +235,8 @@ export default {
     },
     reset() {
       this.canCut = false;
-      this.cutStartX = -50;
-      this.cutStartY = -50;
+      this.cutStartX = -this.originSize;
+      this.cutStartY = -this.originSize;
       this.changeCutArea(false);
       // 重置宽高
       this.sketchWidth = 0;
@@ -292,8 +293,8 @@ export default {
     toggleCut() {
       if (!this.canCut) {
         this.canCut = true;
-        this.cutStartX = -50;
-        this.cutStartY = -50;
+        this.cutStartX = -this.originSize;
+        this.cutStartY = -this.originSize;
         this.changeCutArea();
         canvas.addEventListener("mouseover", e => {
           let ox =
@@ -312,8 +313,33 @@ export default {
       cxt.fill();
       cxt.closePath();
     },
+    // 启动裁剪框移动
+    readyMoveCutArea(e){
+      let cutContent = document.getElementById("cut_content");  
+      cutContent.onmousemove = event => {
+        this.moveCutArea(event, e); 
+      } 
+      cutContent.onmouseup = () => {
+        console.log('u up');
+        cutContent.onmousedown = this.readyMoveCutArea;
+        cutContent.onmousemove = null;
+      } 
+    },
+    // 拖拽裁剪框
+    moveCutArea(event, startDom = {x: 0, y: 0}){
+      // return () => {
+      // let cutContent = document.getElementById("cut_content");
+        let dx = event.x - startDom.x,
+          dy = event.y - startDom.y;
+        console.log('移动', event.type, dx, dy, startDom.x, startDom.y);
+        this.cutStartX = -this.originSize + dx;
+        this.cutStartY = -this.originSize + dy; 
+        this.changeCutArea();
+      // }
+    },
     changeCutArea(movable = true) {
       let cutContent = document.getElementById("cut_content");
+      console.log('center', this.cutStartX ,  this.cutStartY)
       this.setStyle(cutContent, {
         border: "1px solid white",
         width: this.cutWidth + "px",
@@ -326,31 +352,13 @@ export default {
       // cutContent.addEventListener('mouseup', () => {
       //   cutContent.removeEventListener('mousedown', this.readyMoveCutArea);
       // })
-      if (movable && !cutContent.onmousedown) cutContent.onmousedown = this.readyMoveCutArea
-      this.setCutArea()
-    },
-    // 启动裁剪框移动
-    readyMoveCutArea(e){
-      let cutContent = document.getElementById("cut_content");  
-      cutContent.onmousemove = event => {
-        this.moveCutArea(event, e); 
+      if (movable && !cutContent.onmousedown) {
+        cutContent.onmousedown = this.readyMoveCutArea
+      // } else {
+      //   cutContent.onmousedown = null;
+      //   cutContent.onmousemove = null;
       }
-      cutContent.onmouseup = () => {
-        cutContent.onmousedown = null;
-        cutContent.onmousemove = null;
-      } 
-    },
-    // 拖拽裁剪框
-    moveCutArea(event, startDom = {x: 0, y: 0}){
-      // return () => {
-      // let cutContent = document.getElementById("cut_content");
-        let dx = event.x - startDom.x,
-          dy = event.y - startDom.y;
-        console.log('移动', event.type, dx, dy, startDom.x, startDom.y);
-        this.cutStartX += dx;
-        this.cutStartY += dy; 
-        this.changeCutArea();
-      // }
+      this.setCutArea()
     },
     // 裁剪范围
     setCutArea() {
