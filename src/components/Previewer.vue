@@ -1,14 +1,12 @@
 <template>
   <div class="canvas_container">
-    <div class="img_container"
-         :style="{width: minWidth + 'px', height: minWidth + 'px'}">
-      <canvas id="canvas"
-              :width="scopeX"
-              :height="scopeY"
-              style="border: 1px dashed #ddd;"></canvas>
-      <div id="cut_area"
-           v-show="canCut"
-           :style="{width: sketchWidth + 'px', height: sketchHeight + 'px'}">
+    <div class="img_container" :style="{width: minWidth + 'px', height: minWidth + 'px'}">
+      <canvas id="canvas" :width="scopeX" :height="scopeY" style="border: 1px dashed #ddd;"></canvas>
+      <div
+        id="cut_area"
+        v-show="canCut"
+        :style="{width: sketchWidth + 'px', height: sketchHeight + 'px'}"
+      >
         <div id="cut_content"></div>
         <div id="cut_left"></div>
         <div id="cut_right"></div>
@@ -16,34 +14,25 @@
         <div id="cut_bottom"></div>
       </div>
     </div>
-    <canvas id="sketch"
-            :width="sketchWidth"
-            :height="sketchHeight"
-            style="border: 1px dashed #ddd;"></canvas>
+    <canvas
+      id="sketch"
+      :width="sketchWidth"
+      :height="sketchHeight"
+      style="border: 1px dashed #ddd;"
+    ></canvas>
     <div class="acts">
-      <div class="act_btn"
-           @click="handleRotate(false)">逆时针旋转</div>
-      <div class="act_btn"
-           @click="handleRotate(true)">顺时针旋转</div>
-      <div class="act_btn"
-           @click="handleScale(true)">放大</div>
-      <div class="act_btn"
-           @click="handleScale(false)">缩小</div>
-      <div class="act_btn"
-           @click="toggleCut">裁剪</div>
-      <div class="act_btn"
-           @click="toggleGraffiti">涂鸦</div>
-      <div class="act_btn"
-           @click="reset">还原</div>
-      <div class="act_btn"
-           @click="canvasToUrl">保存</div>
+      <div class="act_btn" @click="handleRotate(false)">逆时针旋转</div>
+      <div class="act_btn" @click="handleRotate(true)">顺时针旋转</div>
+      <div class="act_btn" @click="handleScale(true)">放大</div>
+      <div class="act_btn" @click="handleScale(false)">缩小</div>
+      <div class="act_btn" @click="toggleCut">裁剪</div>
+      <div class="act_btn" @click="toggleGraffiti">涂鸦</div>
+      <div class="act_btn" @click="reset">还原</div>
+      <div class="act_btn" @click="canvasToUrl">保存</div>
     </div>
     <div>
       <div>效果图</div>
-      <img v-if="endImage"
-           :src="endImage"
-           alt
-           height="300" />
+      <img v-if="endImage" :src="endImage" alt height="300" />
     </div>
   </div>
 </template>
@@ -79,7 +68,8 @@ export default {
       cutStartY: 0, // 裁剪开始左边y
       cutWidth: 100, // 裁剪区宽
       cutHeight: 100, // 裁剪区高
-      startCut: false // 选择裁剪区
+      startCut: false, // 选择裁剪区
+      startDom: { x: 0, y: 0 }
     };
   },
   mounted() {
@@ -289,22 +279,6 @@ export default {
         });
       });
     },
-    // 启动裁剪
-    toggleCut() {
-      if (!this.canCut) {
-        this.canCut = true;
-        this.cutStartX = -this.originSize;
-        this.cutStartY = -this.originSize;
-        this.changeCutArea();
-        canvas.addEventListener("mouseover", e => {
-          let ox =
-              (1 / this.scale) * (e.pageX - canvas.offsetLeft - this.center.x),
-            oy =
-              (1 / this.scale) * (e.pageY - canvas.offsetTop - this.center.y);
-          console.log(ox, oy);
-        });
-      }
-    },
     // 标识中心
     showCenter() {
       cxt.beginPath();
@@ -313,33 +287,94 @@ export default {
       cxt.fill();
       cxt.closePath();
     },
+    // 启动裁剪
+    toggleCut() {
+      if (!this.canCut) {
+        this.canCut = true;
+        this.cutStartX = -this.originSize;
+        this.cutStartY = -this.originSize;
+        this.readyMoveCutArea();
+      }
+    },
     // 启动裁剪框移动
-    readyMoveCutArea(e){
-      let cutContent = document.getElementById("cut_content");  
-      cutContent.onmousemove = event => {
-        this.moveCutArea(event, e); 
-      } 
-      cutContent.onmouseup = () => {
-        console.log('u up');
-        cutContent.onmousedown = this.readyMoveCutArea;
-        cutContent.onmousemove = null;
-      } 
+    readyMoveCutArea() {
+      let cutContent = document.getElementById("cut_content");
+      console.log("===", cutContent.onmousedown);
+      if (cutContent.onmousedown) {
+        cutContent.onmousedown = null;
+        cutContent.onmouseup = () => {
+          cutContent.onmousemove = null;
+          cutContent.onmousedown = e2 => {
+            cutContent.onmousemove = event => {
+              this.moveCutArea(event, e2);
+            };
+          };
+        };
+      } else {
+        // 初始化
+        this.moveCutArea();
+        cutContent.onmousedown = e => {
+          this.startDom = { x: e.x, y: e.y };
+          cutContent.onmousemove = event => {
+            this.moveCutArea(event, e);
+          };
+          cutContent.onmouseup = () => {
+            cutContent.onmousemove = null;
+            cutContent.onmousedown = () => {
+              cutContent.onmousemove = event => {
+                this.moveCutArea(event, this.startDom);
+              };
+            };
+          };
+          cutContent.onmouseout  = () => {
+            cutContent.onmousemove = null;
+            cutContent.onmousedown = () => {
+              cutContent.onmousemove = event => {
+                this.moveCutArea(event, this.startDom);
+              };
+            };
+          };
+        };
+      }
     },
     // 拖拽裁剪框
-    moveCutArea(event, startDom = {x: 0, y: 0}){
-      // return () => {
-      // let cutContent = document.getElementById("cut_content");
-        let dx = event.x - startDom.x,
-          dy = event.y - startDom.y;
-        console.log('移动', event.type, dx, dy, startDom.x, startDom.y);
-        this.cutStartX = -this.originSize + dx;
-        this.cutStartY = -this.originSize + dy; 
-        this.changeCutArea();
-      // }
+    moveCutArea(event = { x: 0, y: 0 }, startDom = this.startDom) {
+      let dx = event.x - startDom.x,
+        dy = event.y - startDom.y;
+      // console.log("移动", event.type, dx, dy, startDom.x, startDom.y);
+      let cutStartX = -this.originSize + dx,
+        cutStartY = -this.originSize + dy,
+        // 左上角坐标的移动范围(minX, minY)到(maxX, maxY)
+        maxX = this.sketchWidth / 2 - this.cutWidth,
+        maxY = this.sketchHeight / 2 - this.cutHeight,
+        minX = -this.sketchWidth / 2,
+        minY = -this.sketchHeight / 2;
+      if (maxX < cutStartX) {
+        cutStartX = maxX;
+      }
+      if (minX > cutStartX) {
+        cutStartX = minX;
+      }
+      if (maxY < cutStartY) {
+        cutStartY = maxY;
+      }
+      if (minY > cutStartY) {
+        cutStartY = minY;
+      }
+      this.cutStartX = cutStartX;
+      this.cutStartY = cutStartY;
+      console.log(
+        "左上角",
+        cutStartX,
+        cutStartY,
+        this.sketchWidth,
+        this.sketchHeight
+      );
+      this.changeCutArea();
     },
-    changeCutArea(movable = true) {
+    changeCutArea() {
       let cutContent = document.getElementById("cut_content");
-      console.log('center', this.cutStartX ,  this.cutStartY)
+      console.log("center", this.cutStartX, this.cutStartY);
       this.setStyle(cutContent, {
         border: "1px solid white",
         width: this.cutWidth + "px",
@@ -348,17 +383,10 @@ export default {
         left: Math.abs(this.cutStartX + this.sketchWidth / 2) - 1 + "px",
         cursor: "move"
       });
-      // cutContent.addEventListener("mousedown", this.readyMoveCutArea); 
-      // cutContent.addEventListener('mouseup', () => {
-      //   cutContent.removeEventListener('mousedown', this.readyMoveCutArea);
-      // })
-      if (movable && !cutContent.onmousedown) {
-        cutContent.onmousedown = this.readyMoveCutArea
-      // } else {
-      //   cutContent.onmousedown = null;
-      //   cutContent.onmousemove = null;
-      }
-      this.setCutArea()
+      // if (movable && !cutContent.onmousedown) {
+      //   cutContent.onmousedown = this.readyMoveCutArea;
+      // }
+      this.setCutArea();
     },
     // 裁剪范围
     setCutArea() {
@@ -370,10 +398,10 @@ export default {
       cutRight.style.background = "rgba(0,0,0,0.3)";
       cutTop.style.background = "rgba(0,0,0,0.3)";
       cutBottom.style.background = "rgba(0,0,0,0.3)";
-      cutLeft.innerHTML = `<span style="color: white">left</span>`
-      cutRight.innerHTML = `<span style="color: white">cutRight</span>`
-      cutTop.innerHTML = `<span style="color: white">cutTop</span>`
-      cutBottom.innerHTML = `<span style="color: white">cutBottom</span>`
+      cutLeft.innerHTML = `<span style="color: white">left</span>`;
+      cutRight.innerHTML = `<span style="color: white">cutRight</span>`;
+      cutTop.innerHTML = `<span style="color: white">cutTop</span>`;
+      cutBottom.innerHTML = `<span style="color: white">cutBottom</span>`;
       this.setStyle(cutLeft, {
         width: Math.abs(this.cutStartX + this.sketchWidth / 2) + "px",
         height: this.sketchHeight + "px",
@@ -395,7 +423,11 @@ export default {
       });
       this.setStyle(cutBottom, {
         width: this.cutWidth + "px",
-        height: (this.sketchHeight - Math.abs(this.sketchHeight / 2 + this.cutStartY) - this.cutHeight) + "px",
+        height:
+          this.sketchHeight -
+          Math.abs(this.sketchHeight / 2 + this.cutStartY) -
+          this.cutHeight +
+          "px",
         top:
           Math.abs(this.sketchHeight / 2 + this.cutStartY) +
           this.cutHeight +
