@@ -69,7 +69,8 @@ export default {
       cutWidth: 100, // 裁剪区宽
       cutHeight: 100, // 裁剪区高
       startCut: false, // 选择裁剪区
-      startDom: { x: 0, y: 0 }
+      startDom: { x: 0, y: 0 }, // 拖拽起点
+      borderWidth: 5, // 可伸缩宽度
     };
   },
   mounted() {
@@ -337,6 +338,9 @@ export default {
         };
       }
     },
+    scaleCutArea(){
+      // if (event.x)
+    },
     // 拖拽裁剪框
     moveCutArea(event = { x: 0, y: 0 }, startDom = this.startDom) {
       let dx = event.x - startDom.x,
@@ -345,10 +349,10 @@ export default {
       let cutStartX = -this.originSize + dx,
         cutStartY = -this.originSize + dy,
         // 左上角坐标的移动范围(minX, minY)到(maxX, maxY)
-        maxX = this.sketchWidth / 2 - this.cutWidth,
-        maxY = this.sketchHeight / 2 - this.cutHeight,
-        minX = -this.sketchWidth / 2,
-        minY = -this.sketchHeight / 2;
+        maxX = this.sketchWidth / 2 - this.cutWidth - 2 * this.borderWidth,
+        maxY = this.sketchHeight / 2 - this.cutHeight - 2 * this.borderWidth,
+        minX = -this.sketchWidth / 2 + 2 * this.borderWidth,
+        minY = -this.sketchHeight / 2 + 2 * this.borderWidth;
       if (maxX < cutStartX) {
         cutStartX = maxX;
       }
@@ -363,13 +367,6 @@ export default {
       }
       this.cutStartX = cutStartX;
       this.cutStartY = cutStartY;
-      console.log(
-        "左上角",
-        cutStartX,
-        cutStartY,
-        this.sketchWidth,
-        this.sketchHeight
-      );
       this.changeCutArea();
     },
     changeCutArea() {
@@ -377,15 +374,12 @@ export default {
       console.log("center", this.cutStartX, this.cutStartY);
       this.setStyle(cutContent, {
         border: "1px solid white",
-        width: this.cutWidth + "px",
-        height: this.cutHeight + "px",
-        top: Math.abs(this.sketchHeight / 2 + this.cutStartY) - 1 + "px",
-        left: Math.abs(this.cutStartX + this.sketchWidth / 2) - 1 + "px",
+        width: this.cutWidth + 4 * this.borderWidth + "px",
+        height: this.cutHeight + 4 * this.borderWidth + "px",
+        top: Math.abs(this.sketchHeight / 2 + this.cutStartY) - 2 * this.borderWidth - 1 + "px",
+        left: Math.abs(this.cutStartX + this.sketchWidth / 2) - 2 * this.borderWidth - 1 + "px",
         cursor: "move"
       });
-      // if (movable && !cutContent.onmousedown) {
-      //   cutContent.onmousedown = this.readyMoveCutArea;
-      // }
       this.setCutArea();
     },
     // 裁剪范围
@@ -398,10 +392,10 @@ export default {
       cutRight.style.background = "rgba(0,0,0,0.3)";
       cutTop.style.background = "rgba(0,0,0,0.3)";
       cutBottom.style.background = "rgba(0,0,0,0.3)";
-      cutLeft.innerHTML = `<span style="color: white">left</span>`;
-      cutRight.innerHTML = `<span style="color: white">cutRight</span>`;
-      cutTop.innerHTML = `<span style="color: white">cutTop</span>`;
-      cutBottom.innerHTML = `<span style="color: white">cutBottom</span>`;
+      // cutLeft.innerHTML = `<span style="color: white">left</span>`;
+      // cutRight.innerHTML = `<span style="color: white">cutRight</span>`;
+      // cutTop.innerHTML = `<span style="color: white">cutTop</span>`;
+      // cutBottom.innerHTML = `<span style="color: white">cutBottom</span>`;
       this.setStyle(cutLeft, {
         width: Math.abs(this.cutStartX + this.sketchWidth / 2) + "px",
         height: this.sketchHeight + "px",
