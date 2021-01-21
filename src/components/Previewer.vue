@@ -81,7 +81,7 @@ export default {
       cutHeight: 100, // 裁剪区高
       startCut: false, // 选择裁剪区
       startDom: { x: 0, y: 0 }, // 拖拽起点
-      borderWidth: 5 // 可伸缩宽度
+      borderWidth: 10 // 可伸缩宽度
     };
   },
   mounted() {
@@ -360,10 +360,10 @@ export default {
       let cutStartX = -this.originSize + dx,
         cutStartY = -this.originSize + dy,
         // 左上角坐标的移动范围(minX, minY)到(maxX, maxY)
-        maxX = this.sketchWidth / 2 - this.cutWidth - 2 * this.borderWidth,
-        maxY = this.sketchHeight / 2 - this.cutHeight - 2 * this.borderWidth,
-        minX = -this.sketchWidth / 2 + 2 * this.borderWidth,
-        minY = -this.sketchHeight / 2 + 2 * this.borderWidth;
+        maxX = this.sketchWidth / 2 - this.cutWidth - this.borderWidth,
+        maxY = this.sketchHeight / 2 - this.cutHeight - this.borderWidth,
+        minX = -this.sketchWidth / 2 + this.borderWidth,
+        minY = -this.sketchHeight / 2 + this.borderWidth;
       if (maxX < cutStartX) {
         cutStartX = maxX;
       }
@@ -385,16 +385,16 @@ export default {
       console.log("center", this.cutStartX, this.cutStartY);
       this.setStyle(cutContent, {
         border: "1px solid white",
-        width: this.cutWidth + 4 * this.borderWidth + "px",
-        height: this.cutHeight + 4 * this.borderWidth + "px",
+        width: this.cutWidth + 2 * this.borderWidth + "px",
+        height: this.cutHeight + 2 * this.borderWidth + "px",
         top:
           Math.abs(this.sketchHeight / 2 + this.cutStartY) -
-          2 * this.borderWidth -
+          this.borderWidth -
           1 +
           "px",
         left:
           Math.abs(this.cutStartX + this.sketchWidth / 2) -
-          2 * this.borderWidth -
+          this.borderWidth -
           1 +
           "px",
         cursor: "move"
@@ -412,68 +412,76 @@ export default {
         borderLb = document.getElementById("border_lb"),
         borderRb = document.getElementById("border_rb");
       this.setStyle(borderLeft, {
-        width: 2 * this.borderWidth + "px",
+        width: this.borderWidth + "px",
         height: this.cutHeight + "px",
         background: "rgba(0,0,255, 0.8)",
         top: this.cutStartY + this.sketchHeight / 2 + "px",
         left:
-          this.cutStartX + this.sketchWidth / 2 - 2 * this.borderWidth + "px"
+          this.cutStartX + this.sketchWidth / 2 - this.borderWidth + "px",
+          cursor: 'w-resize'
       });
       this.setStyle(borderRight, {
-        width: 2 * this.borderWidth + "px",
+        width: this.borderWidth + "px",
         height: this.cutHeight + "px",
         background: "rgba(0,0,255, 0.8)",
         top: this.cutStartY + this.sketchHeight / 2 + "px",
-        left: this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px"
+        left: this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px",
+          cursor: 'e-resize'
       });
       this.setStyle(borderTop, {
         width: this.cutWidth + "px",
-        height: 2 * this.borderWidth + "px",
+        height: this.borderWidth + "px",
         background: "rgba(255,0,0, 0.8)",
         top:
-          this.cutStartY + this.sketchHeight / 2 - 2 * this.borderWidth + "px",
-        left: this.cutStartX + this.sketchWidth / 2 + "px"
+          this.cutStartY + this.sketchHeight / 2 - this.borderWidth + "px",
+        left: this.cutStartX + this.sketchWidth / 2 + "px",
+          cursor: 'n-resize'
       });
       this.setStyle(borderBottom, {
         width: this.cutWidth + "px",
-        height: 2 * this.borderWidth + "px",
+        height: this.borderWidth + "px",
         background: "rgba(255,0,0, 0.8)",
         top: this.cutStartY + this.sketchHeight / 2 + this.cutHeight + "px",
-        left: this.cutStartX + this.sketchWidth / 2 + "px"
+        left: this.cutStartX + this.sketchWidth / 2 + "px",
+          cursor: 's-resize'
       });
       // 设置四顶角
       this.setStyle(borderLt, {
-        width: 2 * this.borderWidth + "px",
-        height: 2 * this.borderWidth + "px",
+        width: this.borderWidth + "px",
+        height: this.borderWidth + "px",
         background: "rgba(0,255,0, 0.8)",
         top:
-          this.cutStartY + this.sketchHeight / 2 - 2 * this.borderWidth + "px",
+          this.cutStartY + this.sketchHeight / 2 - this.borderWidth + "px",
         left:
-          this.cutStartX + this.sketchWidth / 2 - 2 * this.borderWidth + "px"
+          this.cutStartX + this.sketchWidth / 2 - this.borderWidth + "px",
+          cursor: 'nw-resize'
       });
       this.setStyle(borderRt, {
-        width: 2 * this.borderWidth + "px",
-        height: 2 * this.borderWidth + "px",
+        width: this.borderWidth + "px",
+        height: this.borderWidth + "px",
         background: "rgba(0,255,0, 0.8)",
         top:
-          this.cutStartY + this.sketchHeight / 2 - 2 * this.borderWidth + "px",
-        left: this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px"
+          this.cutStartY + this.sketchHeight / 2 - this.borderWidth + "px",
+        left: this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px",
+          cursor: 'ne-resize'
       });
       this.setStyle(borderLb, {
-        width: 2 * this.borderWidth + "px",
-        height: 2 * this.borderWidth + "px",
+        width: this.borderWidth + "px",
+        height: this.borderWidth + "px",
         background: "rgba(0,255,0,  0.8)",
         top: this.cutStartY + this.sketchHeight / 2 + this.cutHeight + "px",
         left:
-          this.cutStartX + this.sketchWidth / 2 - 2 * this.borderWidth + "px"
+          this.cutStartX + this.sketchWidth / 2 - this.borderWidth + "px",
+          cursor: 'sw-resize'
       });
       this.setStyle(borderRb, {
-        width: 2 * this.borderWidth + "px",
-        height: 2 * this.borderWidth + "px",
+        width: this.borderWidth + "px",
+        height: this.borderWidth + "px",
         background: "rgba(0,255, 0, 0.8)",
         top: this.cutStartY + this.sketchHeight / 2 + this.cutHeight + "px",
         left:
-          this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px"
+          this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px",
+          cursor: 'se-resize'
       });
     },
     // 裁剪范围
