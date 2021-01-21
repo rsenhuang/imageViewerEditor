@@ -8,10 +8,21 @@
         :style="{width: sketchWidth + 'px', height: sketchHeight + 'px'}"
       >
         <div id="cut_content"></div>
+        <!-- 阴影 -->
         <div id="cut_left"></div>
         <div id="cut_right"></div>
         <div id="cut_top"></div>
         <div id="cut_bottom"></div>
+        <!-- 可缩放边 -->
+        <div id="border_left"></div>
+        <div id="border_right"></div>
+        <div id="border_top"></div>
+        <div id="border_bottom"></div>
+        <!-- 缩放边顶角 -->
+        <div id="border_lt"></div>
+        <div id="border_rt"></div>
+        <div id="border_lb"></div>
+        <div id="border_rb"></div>
       </div>
     </div>
     <canvas
@@ -70,7 +81,7 @@ export default {
       cutHeight: 100, // 裁剪区高
       startCut: false, // 选择裁剪区
       startDom: { x: 0, y: 0 }, // 拖拽起点
-      borderWidth: 5, // 可伸缩宽度
+      borderWidth: 5 // 可伸缩宽度
     };
   },
   mounted() {
@@ -327,7 +338,7 @@ export default {
               };
             };
           };
-          cutContent.onmouseout  = () => {
+          cutContent.onmouseout = () => {
             cutContent.onmousemove = null;
             cutContent.onmousedown = () => {
               cutContent.onmousemove = event => {
@@ -338,7 +349,7 @@ export default {
         };
       }
     },
-    scaleCutArea(){
+    scaleCutArea() {
       // if (event.x)
     },
     // 拖拽裁剪框
@@ -376,14 +387,98 @@ export default {
         border: "1px solid white",
         width: this.cutWidth + 4 * this.borderWidth + "px",
         height: this.cutHeight + 4 * this.borderWidth + "px",
-        top: Math.abs(this.sketchHeight / 2 + this.cutStartY) - 2 * this.borderWidth - 1 + "px",
-        left: Math.abs(this.cutStartX + this.sketchWidth / 2) - 2 * this.borderWidth - 1 + "px",
+        top:
+          Math.abs(this.sketchHeight / 2 + this.cutStartY) -
+          2 * this.borderWidth -
+          1 +
+          "px",
+        left:
+          Math.abs(this.cutStartX + this.sketchWidth / 2) -
+          2 * this.borderWidth -
+          1 +
+          "px",
         cursor: "move"
       });
       this.setCutArea();
     },
+    // border原点为左上顶点、canvas原点为图形中心
+    setBorder() {
+      let borderLeft = document.getElementById("border_left"),
+        borderRight = document.getElementById("border_right"),
+        borderTop = document.getElementById("border_top"),
+        borderBottom = document.getElementById("border_bottom"),
+        borderLt = document.getElementById("border_lt"),
+        borderRt = document.getElementById("border_rt"),
+        borderLb = document.getElementById("border_lb"),
+        borderRb = document.getElementById("border_rb");
+      this.setStyle(borderLeft, {
+        width: 2 * this.borderWidth + "px",
+        height: this.cutHeight + "px",
+        background: "rgba(0,0,255, 0.8)",
+        top: this.cutStartY + this.sketchHeight / 2 + "px",
+        left:
+          this.cutStartX + this.sketchWidth / 2 - 2 * this.borderWidth + "px"
+      });
+      this.setStyle(borderRight, {
+        width: 2 * this.borderWidth + "px",
+        height: this.cutHeight + "px",
+        background: "rgba(0,0,255, 0.8)",
+        top: this.cutStartY + this.sketchHeight / 2 + "px",
+        left: this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px"
+      });
+      this.setStyle(borderTop, {
+        width: this.cutWidth + "px",
+        height: 2 * this.borderWidth + "px",
+        background: "rgba(255,0,0, 0.8)",
+        top:
+          this.cutStartY + this.sketchHeight / 2 - 2 * this.borderWidth + "px",
+        left: this.cutStartX + this.sketchWidth / 2 + "px"
+      });
+      this.setStyle(borderBottom, {
+        width: this.cutWidth + "px",
+        height: 2 * this.borderWidth + "px",
+        background: "rgba(255,0,0, 0.8)",
+        top: this.cutStartY + this.sketchHeight / 2 + this.cutHeight + "px",
+        left: this.cutStartX + this.sketchWidth / 2 + "px"
+      });
+      // 设置四顶角
+      this.setStyle(borderLt, {
+        width: 2 * this.borderWidth + "px",
+        height: 2 * this.borderWidth + "px",
+        background: "rgba(0,255,0, 0.8)",
+        top:
+          this.cutStartY + this.sketchHeight / 2 - 2 * this.borderWidth + "px",
+        left:
+          this.cutStartX + this.sketchWidth / 2 - 2 * this.borderWidth + "px"
+      });
+      this.setStyle(borderRt, {
+        width: 2 * this.borderWidth + "px",
+        height: 2 * this.borderWidth + "px",
+        background: "rgba(0,255,0, 0.8)",
+        top:
+          this.cutStartY + this.sketchHeight / 2 - 2 * this.borderWidth + "px",
+        left: this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px"
+      });
+      this.setStyle(borderLb, {
+        width: 2 * this.borderWidth + "px",
+        height: 2 * this.borderWidth + "px",
+        background: "rgba(0,255,0,  0.8)",
+        top: this.cutStartY + this.sketchHeight / 2 + this.cutHeight + "px",
+        left:
+          this.cutStartX + this.sketchWidth / 2 - 2 * this.borderWidth + "px"
+      });
+      this.setStyle(borderRb, {
+        width: 2 * this.borderWidth + "px",
+        height: 2 * this.borderWidth + "px",
+        background: "rgba(0,255, 0, 0.8)",
+        top: this.cutStartY + this.sketchHeight / 2 + this.cutHeight + "px",
+        left:
+          this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px"
+      });
+    },
     // 裁剪范围
     setCutArea() {
+      this.setBorder();
       let cutLeft = document.getElementById("cut_left"),
         cutRight = document.getElementById("cut_right"),
         cutTop = document.getElementById("cut_top"),
@@ -514,7 +609,15 @@ export default {
       #cut_left,
       #cut_right,
       #cut_top,
-      #cut_bottom {
+      #cut_bottom,
+      #border_left,
+      #border_right,
+      #border_top,
+      #border_bottom,
+      #border_lt,
+      #border_rt,
+      #border_lb,
+      #border_rb {
         position: absolute;
       }
     }
