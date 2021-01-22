@@ -11,6 +11,7 @@
 </template>
 
 <script>
+import '@/assets/font.js';
 import "viewerjs/dist/viewer.css";
 // import Viewer from "viewerjs";
 import Previewer from "@/components/Previewer";
@@ -60,5 +61,12 @@ export default {
   img {
     width: 500px;
   }
+}
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
 }
 </style>

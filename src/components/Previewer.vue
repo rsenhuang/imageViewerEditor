@@ -1,12 +1,14 @@
 <template>
   <div class="canvas_container">
-    <div class="img_container" :style="{width: minWidth + 'px', height: minWidth + 'px'}">
-      <canvas id="canvas" :width="scopeX" :height="scopeY" style="border: 1px dashed #ddd;"></canvas>
-      <div
-        id="cut_area"
-        v-show="canCut"
-        :style="{width: sketchWidth + 'px', height: sketchHeight + 'px'}"
-      >
+    <div class="img_container"
+         :style="{width: minWidth + 'px', height: minWidth + 'px'}">
+      <canvas id="canvas"
+              :width="scopeX"
+              :height="scopeY"
+              style="border: 1px dashed #ddd;"></canvas>
+      <div id="cut_area"
+           v-show="canCut"
+           :style="{width: sketchWidth + 'px', height: sketchHeight + 'px'}">
         <div id="cut_content"></div>
         <!-- 阴影 -->
         <div id="cut_left"></div>
@@ -25,25 +27,82 @@
         <div id="border_rb"></div>
       </div>
     </div>
-    <canvas
-      id="sketch"
-      :width="sketchWidth"
-      :height="sketchHeight"
-      style="border: 1px dashed #ddd;"
-    ></canvas>
+    <canvas id="sketch"
+            :width="sketchWidth"
+            :height="sketchHeight"
+            style="border: 1px dashed #ddd;"></canvas>
     <div class="acts">
-      <div class="act_btn" @click="handleRotate(false)">逆时针旋转</div>
-      <div class="act_btn" @click="handleRotate(true)">顺时针旋转</div>
-      <div class="act_btn" @click="handleScale(true)">放大</div>
-      <div class="act_btn" @click="handleScale(false)">缩小</div>
-      <div class="act_btn" @click="toggleCut">裁剪</div>
-      <div class="act_btn" @click="toggleGraffiti">涂鸦</div>
-      <div class="act_btn" @click="reset">还原</div>
-      <div class="act_btn" @click="canvasToUrl">保存</div>
+      <div class="act_btn"
+           @click="handleRotate(false)">
+        <svg class="icon"
+             aria-hidden="true">
+          <use xlink:href="#icon-nishizhenxuanzhuan"></use>
+        </svg>
+        逆时针旋转
+      </div>
+      <div class="act_btn"
+           @click="handleRotate(true)">
+        <svg class="icon"
+             aria-hidden="true">
+          <use xlink:href="#icon-shunshizhenxuanzhuan"></use>
+        </svg>
+        顺时针旋转
+      </div>
+      <div class="act_btn"
+           @click="handleScale(true)">
+        <svg class="icon"
+             aria-hidden="true">
+          <use xlink:href="#icon-fangda"></use>
+        </svg>
+        放大
+      </div>
+      <div class="act_btn"
+           @click="handleScale(false)">
+        <svg class="icon"
+             aria-hidden="true">
+          <use xlink:href="#icon-zoomOut"></use>
+        </svg>
+        缩小
+      </div>
+      <div class="act_btn"
+           @click="toggleCut">
+        <svg class="icon"
+             aria-hidden="true">
+          <use xlink:href="#icon-caijian1"></use>
+        </svg>
+        裁剪
+      </div>
+      <div class="act_btn"
+           @click="toggleGraffiti">
+        <svg class="icon"
+             aria-hidden="true">
+          <use xlink:href="#icon-baocun"></use>
+        </svg>
+        涂鸦
+      </div>
+      <div class="act_btn"
+           @click="reset">
+        <svg class="icon"
+             aria-hidden="true">
+          <use xlink:href="#icon-chehui"></use>
+        </svg>
+        还原
+      </div>
+      <div class="act_btn"
+           @click="canvasToUrl">
+        <svg class="icon"
+             aria-hidden="true">
+          <use xlink:href="#icon-baocun"></use>
+        </svg>
+        保存
+      </div>
     </div>
     <div>
       <div>效果图</div>
-      <img v-if="endImage" :src="endImage" alt height="300" />
+      <img v-if="endImage"
+           :src="endImage"
+           alt
+           height="300" />
     </div>
   </div>
 </template>
@@ -416,9 +475,8 @@ export default {
         height: this.cutHeight + "px",
         background: "rgba(0,0,255, 0.8)",
         top: this.cutStartY + this.sketchHeight / 2 + "px",
-        left:
-          this.cutStartX + this.sketchWidth / 2 - this.borderWidth + "px",
-          cursor: 'w-resize'
+        left: this.cutStartX + this.sketchWidth / 2 - this.borderWidth + "px",
+        cursor: "w-resize"
       });
       this.setStyle(borderRight, {
         width: this.borderWidth + "px",
@@ -426,16 +484,15 @@ export default {
         background: "rgba(0,0,255, 0.8)",
         top: this.cutStartY + this.sketchHeight / 2 + "px",
         left: this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px",
-          cursor: 'e-resize'
+        cursor: "e-resize"
       });
       this.setStyle(borderTop, {
         width: this.cutWidth + "px",
         height: this.borderWidth + "px",
         background: "rgba(255,0,0, 0.8)",
-        top:
-          this.cutStartY + this.sketchHeight / 2 - this.borderWidth + "px",
+        top: this.cutStartY + this.sketchHeight / 2 - this.borderWidth + "px",
         left: this.cutStartX + this.sketchWidth / 2 + "px",
-          cursor: 'n-resize'
+        cursor: "n-resize"
       });
       this.setStyle(borderBottom, {
         width: this.cutWidth + "px",
@@ -443,45 +500,40 @@ export default {
         background: "rgba(255,0,0, 0.8)",
         top: this.cutStartY + this.sketchHeight / 2 + this.cutHeight + "px",
         left: this.cutStartX + this.sketchWidth / 2 + "px",
-          cursor: 's-resize'
+        cursor: "s-resize"
       });
       // 设置四顶角
       this.setStyle(borderLt, {
         width: this.borderWidth + "px",
         height: this.borderWidth + "px",
         background: "rgba(0,255,0, 0.8)",
-        top:
-          this.cutStartY + this.sketchHeight / 2 - this.borderWidth + "px",
-        left:
-          this.cutStartX + this.sketchWidth / 2 - this.borderWidth + "px",
-          cursor: 'nw-resize'
+        top: this.cutStartY + this.sketchHeight / 2 - this.borderWidth + "px",
+        left: this.cutStartX + this.sketchWidth / 2 - this.borderWidth + "px",
+        cursor: "nw-resize"
       });
       this.setStyle(borderRt, {
         width: this.borderWidth + "px",
         height: this.borderWidth + "px",
         background: "rgba(0,255,0, 0.8)",
-        top:
-          this.cutStartY + this.sketchHeight / 2 - this.borderWidth + "px",
+        top: this.cutStartY + this.sketchHeight / 2 - this.borderWidth + "px",
         left: this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px",
-          cursor: 'ne-resize'
+        cursor: "ne-resize"
       });
       this.setStyle(borderLb, {
         width: this.borderWidth + "px",
         height: this.borderWidth + "px",
         background: "rgba(0,255,0,  0.8)",
         top: this.cutStartY + this.sketchHeight / 2 + this.cutHeight + "px",
-        left:
-          this.cutStartX + this.sketchWidth / 2 - this.borderWidth + "px",
-          cursor: 'sw-resize'
+        left: this.cutStartX + this.sketchWidth / 2 - this.borderWidth + "px",
+        cursor: "sw-resize"
       });
       this.setStyle(borderRb, {
         width: this.borderWidth + "px",
         height: this.borderWidth + "px",
         background: "rgba(0,255, 0, 0.8)",
         top: this.cutStartY + this.sketchHeight / 2 + this.cutHeight + "px",
-        left:
-          this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px",
-          cursor: 'se-resize'
+        left: this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px",
+        cursor: "se-resize"
       });
     },
     // 裁剪范围
@@ -644,7 +696,7 @@ export default {
 .act_btn {
   margin-right: 20px;
   border: 1px solid #ddd;
-  width: 90px;
+  width: 150px;
   text-align: center;
   border-radius: 5px;
   color: #333;
