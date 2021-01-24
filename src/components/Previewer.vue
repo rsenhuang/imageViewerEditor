@@ -1,14 +1,12 @@
 <template>
   <div class="canvas_container">
-    <div class="img_container"
-         :style="{width: minWidth + 'px', height: minWidth + 'px'}">
-      <canvas id="canvas"
-              :width="scopeX"
-              :height="scopeY"
-              style="border: 1px dashed #ddd;"></canvas>
-      <div id="cut_area"
-           v-show="canCut"
-           :style="{width: sketchWidth + 'px', height: sketchHeight + 'px'}">
+    <div class="img_container" :style="{width: minWidth + 'px', height: minWidth + 'px'}">
+      <canvas id="canvas" :width="scopeX" :height="scopeY" style="border: 1px dashed #ddd;"></canvas>
+      <div
+        id="cut_area"
+        v-show="canCut"
+        :style="{width: sketchWidth + 'px', height: sketchHeight + 'px'}"
+      >
         <div id="cut_content"></div>
         <!-- 阴影 -->
         <div id="cut_left"></div>
@@ -27,82 +25,65 @@
         <div id="border_rb"></div>
       </div>
     </div>
-    <canvas id="sketch"
-            :width="sketchWidth"
-            :height="sketchHeight"
-            style="border: 1px dashed #ddd;"></canvas>
+    <canvas
+      id="sketch"
+      :width="sketchWidth"
+      :height="sketchHeight"
+      style="border: 1px dashed #ddd;"
+    ></canvas>
     <div class="acts">
-      <div class="act_btn"
-           @click="handleRotate(false)">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-nishizhenxuanzhuan"></use>
+      <div class="act_btn" @click="handleRotate(false)">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-nishizhenxuanzhuan" />
         </svg>
         逆时针旋转
       </div>
-      <div class="act_btn"
-           @click="handleRotate(true)">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-shunshizhenxuanzhuan"></use>
+      <div class="act_btn" @click="handleRotate(true)">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-shunshizhenxuanzhuan" />
         </svg>
         顺时针旋转
       </div>
-      <div class="act_btn"
-           @click="handleScale(true)">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-fangda"></use>
+      <div class="act_btn" @click="handleScale(true)">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-fangda" />
         </svg>
         放大
       </div>
-      <div class="act_btn"
-           @click="handleScale(false)">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-zoomOut"></use>
+      <div class="act_btn" @click="handleScale(false)">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-zoomOut" />
         </svg>
         缩小
       </div>
-      <div class="act_btn"
-           @click="toggleCut">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-caijian1"></use>
+      <div class="act_btn" @click="toggleCut">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-caijian1" />
         </svg>
         裁剪
       </div>
-      <div class="act_btn"
-           @click="toggleGraffiti">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-baocun"></use>
+      <div class="act_btn" @click="toggleGraffiti">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-baocun" />
         </svg>
         涂鸦
       </div>
-      <div class="act_btn"
-           @click="reset">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-chehui"></use>
+      <div class="act_btn" @click="reset">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-chehui" />
         </svg>
         还原
       </div>
-      <div class="act_btn"
-           @click="canvasToUrl">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-baocun"></use>
+      <div class="act_btn" @click="canvasToUrl">
+        <svg class="icon" aria-hidden="true">
+          <use xlink:href="#icon-baocun" />
         </svg>
         保存
       </div>
     </div>
     <div>
       <div>效果图</div>
-      <img v-if="endImage"
-           :src="endImage"
-           alt
-           height="300" />
+      <img v-if="endImage" :src="endImage" alt height="300" />
     </div>
   </div>
 </template>
@@ -134,6 +115,7 @@ export default {
       scopeY: 1000, // 图片大小（高）
       canCut: false, // 是否启用裁剪
       originSize: 50, // 裁剪区默认大小（1/2宽高）
+      initCut: false, // 是否初始化裁剪
       cutStartX: 0, // 裁剪开始坐标x
       cutStartY: 0, // 裁剪开始左边y
       cutWidth: 100, // 裁剪区宽
@@ -296,8 +278,8 @@ export default {
     },
     reset() {
       this.canCut = false;
-      this.cutStartX = -this.originSize;
-      this.cutStartY = -this.originSize;
+      this.cutStartX = -this.cutWidth / 2;
+      this.cutStartY = -this.cutHeight / 2;
       this.changeCutArea(false);
       // 重置宽高
       this.sketchWidth = 0;
@@ -362,8 +344,8 @@ export default {
     toggleCut() {
       if (!this.canCut) {
         this.canCut = true;
-        this.cutStartX = -this.originSize;
-        this.cutStartY = -this.originSize;
+        this.cutStartX = -this.cutWidth / 2;
+        this.cutStartY = -this.cutHeight / 2;
         this.readyMoveCutArea();
       }
     },
@@ -374,9 +356,9 @@ export default {
       if (cutContent.onmousedown) {
         cutContent.onmousedown = null;
         cutContent.onmouseup = () => {
-          cutContent.onmousemove = null;
+          document.onmousemove = null;
           cutContent.onmousedown = e2 => {
-            cutContent.onmousemove = event => {
+            document.onmousemove = event => {
               this.moveCutArea(event, e2);
             };
           };
@@ -385,39 +367,27 @@ export default {
         // 初始化
         this.moveCutArea();
         cutContent.onmousedown = e => {
-          this.startDom = { x: e.x, y: e.y };
-          cutContent.onmousemove = event => {
+          if (!this.initCut){
+            this.startDom = { x: e.x, y: e.y };
+          }
+          this.initCut = true;
+          document.onmousemove = event => {
+            event.preventDefault();
             this.moveCutArea(event, e);
           };
           cutContent.onmouseup = () => {
-            cutContent.onmousemove = null;
-            cutContent.onmousedown = () => {
-              cutContent.onmousemove = event => {
-                this.moveCutArea(event, this.startDom);
-              };
-            };
-          };
-          cutContent.onmouseout = () => {
-            cutContent.onmousemove = null;
-            cutContent.onmousedown = () => {
-              cutContent.onmousemove = event => {
-                this.moveCutArea(event, this.startDom);
-              };
-            };
+            document.onmousemove = null;
           };
         };
       }
-    },
-    scaleCutArea() {
-      // if (event.x)
-    },
+    }, 
     // 拖拽裁剪框
     moveCutArea(event = { x: 0, y: 0 }, startDom = this.startDom) {
       let dx = event.x - startDom.x,
         dy = event.y - startDom.y;
       // console.log("移动", event.type, dx, dy, startDom.x, startDom.y);
-      let cutStartX = -this.originSize + dx,
-        cutStartY = -this.originSize + dy,
+      let cutStartX = -this.cutWidth / 2 + dx,
+        cutStartY = -this.cutHeight / 2 + dy,
         // 左上角坐标的移动范围(minX, minY)到(maxX, maxY)
         maxX = this.sketchWidth / 2 - this.cutWidth - this.borderWidth,
         maxY = this.sketchHeight / 2 - this.cutHeight - this.borderWidth,
@@ -535,6 +505,100 @@ export default {
         left: this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px",
         cursor: "se-resize"
       });
+      borderLeft.onmousedown = se => this.dragBorder(se, 'bl');
+      borderLeft.onmouseup =  () => document.onmousemove = null;
+      borderRight.onmousedown = se => this.dragBorder(se, 'br');
+      borderRight.onmouseup =  () => document.onmousemove = null;
+      borderTop.onmousedown = se => this.dragBorder(se, 'bt');
+      borderTop.onmouseup =  () => document.onmousemove = null;
+      borderBottom.onmousedown = se => this.dragBorder(se, 'bb');
+      borderBottom.onmouseup =  () => document.onmousemove = null;
+      // borderLeft.onmousedown = se => {
+      //   let sx = this.cutStartX,
+      //     sw = this.cutWidth,
+      //     minX = -this.sketchWidth / 2 + this.borderWidth;
+      //   document.onmousemove = ee => {
+      //     let moveDis = ee?.x - se?.x;
+      //     let startX = sx + moveDis;
+      //     if (startX >= minX) {
+      //       this.cutStartX = sx + moveDis;
+      //       this.cutWidth = sw - moveDis;
+      //     } else {
+      //       return false;
+      //     }
+      //     this.changeCutArea();
+      //   };
+      //   borderLeft.onmouseup = () => {
+      //     document.onmousemove = null;
+      //   };
+      // };
+    },
+    // 拖拽边界
+    dragBorder(se, dom) {
+      let sx = this.cutStartX,
+        sy = this.cutStartY,
+        sw = this.cutWidth, 
+        sh = this.cutHeight, 
+        maxX = this.sketchWidth / 2 - this.borderWidth,
+        maxY = this.sketchHeight / 2 - this.cutHeight - this.borderWidth,
+        minX = -this.sketchWidth / 2 + this.borderWidth,
+        minY = -this.sketchHeight / 2 + this.borderWidth;
+      switch (dom) {
+        case "bl":
+          document.onmousemove = ee => {
+            let moveDis = ee?.x - se?.x;
+            let startX = sx + moveDis;
+            if (startX >= minX && startX < sx) {
+              this.cutStartX = sx + moveDis;
+              this.cutWidth = sw - moveDis;
+            } else {
+              return false;
+            }
+            this.changeCutArea();
+          }
+          break; 
+        case 'br': 
+           document.onmousemove = ee => {
+            let moveDis = ee?.x - se?.x;  
+            console.log('move', sx, sw, moveDis ,maxX)
+            if (sx + sw + moveDis <= maxX && sw > -moveDis) {
+              this.cutWidth = sw + moveDis;
+            } else {
+              return false;
+            }
+            this.changeCutArea();
+            document.onmouseup = () => document.onmousemove = null;
+          }
+          break; 
+        case 'bt': 
+           document.onmousemove = ee => {
+            let moveDis = ee?.y - se?.y;
+            let startY = sy + moveDis;
+            if (startY > sy && startY <= maxY) {
+              this.cutStartY = sy + moveDis;
+              this.cutHeight = sh - moveDis;
+            } else {
+              return false;
+            }
+            this.changeCutArea();
+          }
+          break;
+        case 'bb': 
+           document.onmousemove = ee => {
+            let moveDis = ee?.y - se?.y;
+            let startY = sy + moveDis;
+            if (startY >= minY && sy < startY) {
+              this.cutStartY = sy + moveDis;
+              this.cutHeight = sh - moveDis;
+            } else {
+              return false;
+            }
+            this.changeCutArea();
+          }
+          break; 
+        default:
+          break;
+      }
     },
     // 裁剪范围
     setCutArea() {
