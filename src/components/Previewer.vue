@@ -367,7 +367,7 @@ export default {
         // 初始化
         this.moveCutArea();
         cutContent.onmousedown = e => {
-          if (!this.initCut){
+          if (!this.initCut) {
             this.startDom = { x: e.x, y: e.y };
           }
           this.initCut = true;
@@ -380,7 +380,7 @@ export default {
           };
         };
       }
-    }, 
+    },
     // 拖拽裁剪框
     moveCutArea(event = { x: 0, y: 0 }, startDom = this.startDom) {
       let dx = event.x - startDom.x,
@@ -505,14 +505,14 @@ export default {
         left: this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px",
         cursor: "se-resize"
       });
-      borderLeft.onmousedown = se => this.dragBorder(se, 'bl');
-      borderLeft.onmouseup =  () => document.onmousemove = null;
-      borderRight.onmousedown = se => this.dragBorder(se, 'br');
-      borderRight.onmouseup =  () => document.onmousemove = null;
-      borderTop.onmousedown = se => this.dragBorder(se, 'bt');
-      borderTop.onmouseup =  () => document.onmousemove = null;
-      borderBottom.onmousedown = se => this.dragBorder(se, 'bb');
-      borderBottom.onmouseup =  () => document.onmousemove = null;
+      borderLeft.onmousedown = se => this.dragBorder(se, "bl");
+      borderLeft.onmouseup = () => (document.onmousemove = null);
+      borderRight.onmousedown = se => this.dragBorder(se, "br");
+      borderRight.onmouseup = () => (document.onmousemove = null);
+      borderTop.onmousedown = se => this.dragBorder(se, "bt");
+      borderTop.onmouseup = () => (document.onmousemove = null);
+      borderBottom.onmousedown = se => this.dragBorder(se, "bb");
+      borderBottom.onmouseup = () => (document.onmousemove = null);
       // borderLeft.onmousedown = se => {
       //   let sx = this.cutStartX,
       //     sw = this.cutWidth,
@@ -537,8 +537,8 @@ export default {
     dragBorder(se, dom) {
       let sx = this.cutStartX,
         sy = this.cutStartY,
-        sw = this.cutWidth, 
-        sh = this.cutHeight, 
+        sw = this.cutWidth,
+        sh = this.cutHeight,
         maxX = this.sketchWidth / 2 - this.borderWidth,
         maxY = this.sketchHeight / 2 - this.cutHeight - this.borderWidth,
         minX = -this.sketchWidth / 2 + this.borderWidth,
@@ -555,23 +555,23 @@ export default {
               return false;
             }
             this.changeCutArea();
-          }
-          break; 
-        case 'br': 
-           document.onmousemove = ee => {
-            let moveDis = ee?.x - se?.x;  
-            console.log('move', sx, sw, moveDis ,maxX)
+          };
+          break;
+        case "br":
+          document.onmousemove = ee => {
+            let moveDis = ee?.x - se?.x;
+            console.log("move", sx, sw, moveDis, maxX);
             if (sx + sw + moveDis <= maxX && sw > -moveDis) {
               this.cutWidth = sw + moveDis;
             } else {
               return false;
             }
             this.changeCutArea();
-            document.onmouseup = () => document.onmousemove = null;
-          }
-          break; 
-        case 'bt': 
-           document.onmousemove = ee => {
+            document.onmouseup = () => (document.onmousemove = null);
+          };
+          break;
+        case "bt":
+          document.onmousemove = ee => {
             let moveDis = ee?.y - se?.y;
             let startY = sy + moveDis;
             if (startY > sy && startY <= maxY) {
@@ -581,10 +581,10 @@ export default {
               return false;
             }
             this.changeCutArea();
-          }
+          };
           break;
-        case 'bb': 
-           document.onmousemove = ee => {
+        case "bb":
+          document.onmousemove = ee => {
             let moveDis = ee?.y - se?.y;
             let startY = sy + moveDis;
             if (startY >= minY && sy < startY) {
@@ -594,8 +594,8 @@ export default {
               return false;
             }
             this.changeCutArea();
-          }
-          break; 
+          };
+          break;
         default:
           break;
       }
