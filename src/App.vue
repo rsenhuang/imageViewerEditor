@@ -5,20 +5,20 @@
         <img v-if="index=== active" :src="url" />
       </div>
       <div id="image"></div>
-    </div> -->
-    <Previewer :imgUrl="imgList[0]" />
+    </div>-->
+    <ImageEditor :imgUrl="imgList[0]" />
   </div>
 </template>
 
 <script>
-import '@/assets/font.js';
+import "@/assets/font.js";
 import "viewerjs/dist/viewer.css";
 // import Viewer from "viewerjs";
-import Previewer from "@/components/Previewer";
+import ImageEditor from "@/components/ImageEditor";
 export default {
   name: "App",
   components: {
-    Previewer
+    ImageEditor
   },
   data() {
     return {
