@@ -108,6 +108,7 @@
 </template>
 
 <script>
+import "@/assets/font.js";
 let cxt = undefined;
 let canvas = undefined;
 export default {
@@ -262,8 +263,9 @@ export default {
     },
     // 缩放
     handleScale(big = true) {
-      let size = 1 + (big ? 0.2 : -0.2);
-      this.scale = this.scale * (big ? 1.2 : 0.8);
+      // let size = 1 + (big ? 0.2 : -0.2);
+      let size = big ? 1.2 : 5 / 6;
+      this.scale = this.scale * (big ? 1.2 : 5 / 6);
       cxt.clearRect(
         -this.scopeX,
         -this.scopeY,
@@ -300,7 +302,7 @@ export default {
       this.canCut = false;
       this.cutStartX = -this.cutWidth / 2;
       this.cutStartY = -this.cutHeight / 2;
-      this.changeCutArea(false);
+      // this.changeCutArea(false);
       // 重置宽高
       this.sketchWidth = 0;
       this.sketchHeight = 0;
@@ -320,14 +322,12 @@ export default {
       image.src = this.imgUrl;
       this.scopeX = image.width;
       this.scopeY = image.height;
+      console.log("当前缩放等级", this.scale);
       image.addEventListener("load", () => {
         this.$nextTick(() => {
           /*
            *  重点注意：动态修改canvas宽高会导致canvas重新渲染，原点回归左上顶角
            */
-          // 缩放复原
-          cxt.scale(1 / this.scale, 1 / this.scale);
-          this.scale = 1;
           // 旋转复原
           if (this.direction % 2) {
             // if (this.direction === 1){
@@ -339,6 +339,9 @@ export default {
             this.moveCenter(image.width / 2, image.height / 2, true);
           }
           this.direction = 1;
+          // 缩放复原
+          cxt.scale(1 / this.scale, 1 / this.scale);
+          this.scale = 1;
           this.sketchWidth = image.width;
           this.sketchHeight = image.height;
           cxt.drawImage(
@@ -848,5 +851,12 @@ export default {
     border: 1px solid chocolate;
     cursor: pointer;
   }
+}
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
 }
 </style>
