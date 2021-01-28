@@ -2,7 +2,7 @@
 
 ## Project setup
 ```
-yarn install
+npm install image-viewer-editor
 ```
 
 ### Compiles and hot-reloads for development
