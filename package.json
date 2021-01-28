@@ -1,11 +1,11 @@
 {
-  "name": "image-editor",
-  "version": "0.1.0",
+  "name": "image-viewer-editor",
+  "version": "1.1.0",
   "private": false,
-  "main": "./dist/image-editor.js",
+  "main": "./dist/image-viewer.js",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --target lib --name image-viewer ./index.js",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

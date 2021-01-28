@@ -1,12 +1,14 @@
 <template>
   <div class="canvas_container">
-    <div class="img_container" :style="{width: minWidth + 'px', height: minWidth + 'px'}">
-      <canvas id="canvas" :width="scopeX" :height="scopeY" style="border: 1px dashed #ddd;"></canvas>
-      <div
-        id="cut_area"
-        v-show="canCut"
-        :style="{width: sketchWidth + 'px', height: sketchHeight + 'px'}"
-      >
+    <div class="img_container"
+         :style="{width: minWidth + 'px', height: minWidth + 'px'}">
+      <canvas id="canvas"
+              :width="scopeX"
+              :height="scopeY"
+              style="border: 1px dashed #ddd;"></canvas>
+      <div id="cut_area"
+           v-show="canCut"
+           :style="{width: sketchWidth + 'px', height: sketchHeight + 'px'}">
         <div id="cut_content"></div>
         <!-- 阴影 -->
         <div id="cut_left"></div>
@@ -25,57 +27,71 @@
         <div id="border_rb"></div>
       </div>
     </div>
-    <canvas
-      id="sketch"
-      :width="sketchWidth"
-      :height="sketchHeight"
-      style="border: 1px dashed #ddd;"
-    ></canvas>
+    <canvas id="sketch"
+            :width="sketchWidth"
+            :height="sketchHeight"
+            style="border: 1px dashed #ddd;"></canvas>
     <div class="acts">
-      <div class="act_btn" @click="handleRotate(false)">
-        <svg class="icon" aria-hidden="true">
+      <div class="act_btn"
+           @click="handleRotate(false)">
+        <svg class="icon"
+             aria-hidden="true">
           <use xlink:href="#icon-nishizhenxuanzhuan" />
         </svg>
         <!-- 逆时针旋转 -->
       </div>
-      <div class="act_btn" @click="handleRotate(true)">
-        <svg class="icon" aria-hidden="true">
+      <div class="act_btn"
+           @click="handleRotate(true)">
+        <svg class="icon"
+             aria-hidden="true">
           <use xlink:href="#icon-shunshizhenxuanzhuan" />
         </svg>
         <!-- 顺时针旋转 -->
       </div>
-      <div class="act_btn" @click="handleScale(true)">
-        <svg class="icon" aria-hidden="true">
+      <div class="act_btn"
+           @click="handleScale(true)">
+        <svg class="icon"
+             aria-hidden="true">
           <use xlink:href="#icon-fangda" />
         </svg>
         <!-- 放大 -->
       </div>
-      <div class="act_btn" @click="handleScale(false)">
-        <svg class="icon" aria-hidden="true">
+      <div class="act_btn"
+           @click="handleScale(false)">
+        <svg class="icon"
+             aria-hidden="true">
           <use xlink:href="#icon-zoomOut" />
         </svg>
         <!-- 缩小 -->
       </div>
-      <div class="act_btn" @click="toggleCut">
-        <svg class="icon" aria-hidden="true">
+      <div class="act_btn"
+           @click="toggleCut">
+        <svg class="icon"
+             aria-hidden="true">
           <use xlink:href="#icon-caijian1" />
         </svg>
         <!-- 裁剪 -->
       </div>
-      <div class="act_btn" @click="toggleGraffiti">
-        <svg class="icon" aria-hidden="true">
+      <div class="act_btn"
+           @click="toggleGraffiti">
+        <svg class="icon"
+             aria-hidden="true">
           <use xlink:href="#icon-huabi" />
         </svg>
         <!-- 涂鸦 -->
       </div>
-      <div class="act_btn" @click="reset">
-        <svg class="icon" aria-hidden="true">
+      <div class="act_btn"
+           @click="reset">
+        <svg class="icon"
+             aria-hidden="true">
           <use xlink:href="#icon-chehui" />
         </svg>
         <!-- 还原 -->
       </div>
-      <div class="act_btn" @click="canvasToUrl">
-        <svg class="icon" aria-hidden="true">
+      <div class="act_btn"
+           @click="canvasToUrl">
+        <svg class="icon"
+             aria-hidden="true">
           <use xlink:href="#icon-baocun" />
         </svg>
         <!-- 保存 -->
@@ -83,7 +99,10 @@
     </div>
     <div>
       <div>效果图</div>
-      <img v-if="endImage" :src="endImage" alt height="300" />
+      <img v-if="endImage"
+           :src="endImage"
+           alt
+           height="300" />
     </div>
   </div>
 </template>
@@ -92,18 +111,18 @@
 let cxt = undefined;
 let canvas = undefined;
 export default {
-  name: "ImageEditor",
+  name: "ImageViewer",
   props: {
     imgUrl: {
       type: String,
-      default: ""
-    }
+      default: "",
+    },
   },
   data() {
     return {
       center: {
         x: 0,
-        y: 0
+        y: 0,
       }, // 原点位置
       endImage: "",
       sketchWidth: 0, // 效果
@@ -122,7 +141,7 @@ export default {
       cutHeight: 100, // 裁剪区高
       startCut: false, // 选择裁剪区
       startDom: { x: 0, y: 0 }, // 拖拽起点
-      borderWidth: 10 // 可伸缩宽度
+      borderWidth: 10, // 可伸缩宽度
     };
   },
   mounted() {
@@ -133,7 +152,7 @@ export default {
     image.onload = () => {
       console.log("loaded");
     };
-    image.onerror = err => {
+    image.onerror = (err) => {
       console.log("loaded err", err);
     };
     image.setAttribute("crossOrigin", "anonymous");
@@ -163,7 +182,7 @@ export default {
       if (reset) {
         this.center = {
           x: 0,
-          y: 0
+          y: 0,
         };
         // cxt.translate(-x, -y);
       }
@@ -186,7 +205,7 @@ export default {
       this.minWidth = long;
       return {
         height: image.height,
-        width: image.width
+        width: image.width,
       };
     },
     handleRotate(clockwise = true) {
@@ -288,7 +307,7 @@ export default {
       cxt.lineWidth = 1;
       this.center = {
         x: 0,
-        y: 0
+        y: 0,
       };
       cxt.clearRect(
         -this.scopeX,
@@ -366,12 +385,12 @@ export default {
       // } else {
       // 初始化
       this.moveCutArea();
-      cutContent.onmousedown = e => {
+      cutContent.onmousedown = (e) => {
         if (!this.initCut) {
           this.startDom = { x: e.x, y: e.y };
         }
         this.initCut = true;
-        document.onmousemove = event => {
+        document.onmousemove = (event) => {
           event.preventDefault();
           this.moveCutArea(event, e);
         };
@@ -425,7 +444,7 @@ export default {
           this.borderWidth -
           1 +
           "px",
-        cursor: "move"
+        cursor: "move",
       });
       this.setCutArea();
     },
@@ -445,7 +464,7 @@ export default {
         // background: "rgba(0,0,255, 0.8)",
         top: this.cutStartY + this.sketchHeight / 2 + "px",
         left: this.cutStartX + this.sketchWidth / 2 - this.borderWidth + "px",
-        cursor: "w-resize"
+        cursor: "w-resize",
       });
       this.setStyle(borderRight, {
         width: this.borderWidth + "px",
@@ -453,7 +472,7 @@ export default {
         // background: "rgba(0,0,255, 0.8)",
         top: this.cutStartY + this.sketchHeight / 2 + "px",
         left: this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px",
-        cursor: "e-resize"
+        cursor: "e-resize",
       });
       this.setStyle(borderTop, {
         width: this.cutWidth + "px",
@@ -461,7 +480,7 @@ export default {
         // background: "rgba(255,0,0, 0.8)",
         top: this.cutStartY + this.sketchHeight / 2 - this.borderWidth + "px",
         left: this.cutStartX + this.sketchWidth / 2 + "px",
-        cursor: "n-resize"
+        cursor: "n-resize",
       });
       this.setStyle(borderBottom, {
         width: this.cutWidth + "px",
@@ -469,7 +488,7 @@ export default {
         // background: "rgba(255,0,0, 0.8)",
         top: this.cutStartY + this.sketchHeight / 2 + this.cutHeight + "px",
         left: this.cutStartX + this.sketchWidth / 2 + "px",
-        cursor: "s-resize"
+        cursor: "s-resize",
       });
       // 设置四顶角
       this.setStyle(borderLt, {
@@ -478,7 +497,7 @@ export default {
         // background: "rgba(0,255,0, 0.8)",
         top: this.cutStartY + this.sketchHeight / 2 - this.borderWidth + "px",
         left: this.cutStartX + this.sketchWidth / 2 - this.borderWidth + "px",
-        cursor: "nw-resize"
+        cursor: "nw-resize",
       });
       this.setStyle(borderRt, {
         width: this.borderWidth + "px",
@@ -486,7 +505,7 @@ export default {
         // background: "rgba(0,255,0, 0.8)",
         top: this.cutStartY + this.sketchHeight / 2 - this.borderWidth + "px",
         left: this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px",
-        cursor: "ne-resize"
+        cursor: "ne-resize",
       });
       this.setStyle(borderLb, {
         width: this.borderWidth + "px",
@@ -494,7 +513,7 @@ export default {
         // background: "rgba(0,255,0,  0.8)",
         top: this.cutStartY + this.sketchHeight / 2 + this.cutHeight + "px",
         left: this.cutStartX + this.sketchWidth / 2 - this.borderWidth + "px",
-        cursor: "sw-resize"
+        cursor: "sw-resize",
       });
       this.setStyle(borderRb, {
         width: this.borderWidth + "px",
@@ -502,23 +521,23 @@ export default {
         // background: "rgba(0,255, 0, 0.8)",
         top: this.cutStartY + this.sketchHeight / 2 + this.cutHeight + "px",
         left: this.cutStartX + this.cutWidth + this.sketchWidth / 2 + "px",
-        cursor: "se-resize"
+        cursor: "se-resize",
       });
-      borderLeft.onmousedown = se => this.dragBorder(se, "bl");
+      borderLeft.onmousedown = (se) => this.dragBorder(se, "bl");
       borderLeft.onmouseup = () => (document.onmousemove = null);
-      borderRight.onmousedown = se => this.dragBorder(se, "br");
+      borderRight.onmousedown = (se) => this.dragBorder(se, "br");
       borderRight.onmouseup = () => (document.onmousemove = null);
-      borderTop.onmousedown = se => this.dragBorder(se, "bt");
+      borderTop.onmousedown = (se) => this.dragBorder(se, "bt");
       borderTop.onmouseup = () => (document.onmousemove = null);
-      borderBottom.onmousedown = se => this.dragBorder(se, "bb");
+      borderBottom.onmousedown = (se) => this.dragBorder(se, "bb");
       borderBottom.onmouseup = () => (document.onmousemove = null);
-      borderLt.onmousedown = se => this.dragBorder(se, "lt");
+      borderLt.onmousedown = (se) => this.dragBorder(se, "lt");
       borderLt.onmouseup = () => (document.onmousemove = null);
-      borderRt.onmousedown = se => this.dragBorder(se, "rt");
+      borderRt.onmousedown = (se) => this.dragBorder(se, "rt");
       borderRt.onmouseup = () => (document.onmousemove = null);
-      borderLb.onmousedown = se => this.dragBorder(se, "lb");
+      borderLb.onmousedown = (se) => this.dragBorder(se, "lb");
       borderLb.onmouseup = () => (document.onmousemove = null);
-      borderRb.onmousedown = se => this.dragBorder(se, "rb");
+      borderRb.onmousedown = (se) => this.dragBorder(se, "rb");
       borderRb.onmouseup = () => (document.onmousemove = null);
     },
     // 拖拽边界
@@ -533,7 +552,7 @@ export default {
         minY = -this.sketchHeight / 2 + this.borderWidth;
       switch (dom) {
         case "bl":
-          document.onmousemove = ee => {
+          document.onmousemove = (ee) => {
             let moveDis = ee?.x - se?.x;
             let startX = sx + moveDis;
             if (startX >= minX && startX < sx + sw) {
@@ -546,7 +565,7 @@ export default {
           };
           break;
         case "br":
-          document.onmousemove = ee => {
+          document.onmousemove = (ee) => {
             let moveDis = ee?.x - se?.x;
             if (sx + sw + moveDis <= maxX && sw > -moveDis) {
               this.cutWidth = sw + moveDis;
@@ -557,7 +576,7 @@ export default {
           };
           break;
         case "bt":
-          document.onmousemove = ee => {
+          document.onmousemove = (ee) => {
             let moveDis = ee?.y - se?.y;
             let startY = sy + moveDis;
             if (startY < sy + sh && startY >= minY) {
@@ -570,7 +589,7 @@ export default {
           };
           break;
         case "bb":
-          document.onmousemove = ee => {
+          document.onmousemove = (ee) => {
             let moveDis = ee?.y - se?.y;
             if (sy + sh + moveDis <= maxY && sh > -moveDis) {
               this.cutHeight = sh + moveDis;
@@ -582,7 +601,7 @@ export default {
           break;
 
         case "lt":
-          document.onmousemove = ee => {
+          document.onmousemove = (ee) => {
             let movex = ee?.x - se?.x;
             let movey = ee?.y - se?.y;
             if (sx + movex >= minX && movex < sw) {
@@ -597,7 +616,7 @@ export default {
           };
           break;
         case "rt":
-          document.onmousemove = ee => {
+          document.onmousemove = (ee) => {
             let movex = ee?.x - se?.x;
             let movey = ee?.y - se?.y;
             if (sx + sw + movex <= maxX && sw > -movex) {
@@ -611,7 +630,7 @@ export default {
           };
           break;
         case "lb":
-          document.onmousemove = ee => {
+          document.onmousemove = (ee) => {
             let movex = ee?.x - se?.x;
             let movey = ee?.y - se?.y;
             if (sx + movex >= minX && sw > movex) {
@@ -625,7 +644,7 @@ export default {
           };
           break;
         case "rb":
-          document.onmousemove = ee => {
+          document.onmousemove = (ee) => {
             let movex = ee?.x - se?.x;
             let movey = ee?.y - se?.y;
             if (sx + sw + movex <= maxX && sw > -movex) {
@@ -659,7 +678,7 @@ export default {
           this.borderWidth +
           "px",
         height: this.sketchHeight + "px",
-        top: 0
+        top: 0,
       });
       this.setStyle(cutRight, {
         width:
@@ -668,7 +687,7 @@ export default {
           "px",
         height: this.sketchHeight + "px",
         top: 0,
-        right: 0
+        right: 0,
       });
       this.setStyle(cutTop, {
         width: this.cutWidth + 2 * this.borderWidth + "px",
@@ -680,7 +699,7 @@ export default {
         left:
           Math.abs(this.cutStartX + this.sketchWidth / 2) -
           this.borderWidth +
-          "px"
+          "px",
       });
       this.setStyle(cutBottom, {
         width: this.cutWidth + 2 * this.borderWidth + "px",
@@ -698,7 +717,7 @@ export default {
         left:
           Math.abs(this.cutStartX + this.sketchWidth / 2) -
           this.borderWidth +
-          "px"
+          "px",
       });
     },
     // 设置样式
@@ -720,7 +739,7 @@ export default {
       let ox = (1 / this.scale) * (e.pageX - canvas.offsetLeft - this.center.x),
         oy = (1 / this.scale) * (e.pageY - canvas.offsetTop - this.center.y);
       cxt.moveTo(ox, oy);
-      canvas.onmousemove = event => {
+      canvas.onmousemove = (event) => {
         let ox2 =
             (1 / this.scale) *
             (event.pageX - canvas.offsetLeft - this.center.x),
@@ -766,8 +785,8 @@ export default {
       sketchCxt.putImageData(canvasData, 0, 0);
       let url = sketch.toDataURL("image/png", 1);
       this.endImage = url;
-    }
-  }
+    },
+  },
 };
 </script>
 

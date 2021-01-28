@@ -6,7 +6,7 @@
       </div>
       <div id="image"></div>
     </div>-->
-    <ImageEditor :imgUrl="imgList[0]" />
+    <ImageViewer :imgUrl="imgList[0]" />
   </div>
 </template>
 
@@ -14,20 +14,20 @@
 import "@/assets/font.js";
 import "viewerjs/dist/viewer.css";
 // import Viewer from "viewerjs";
-import ImageEditor from "@/components/ImageEditor";
+import ImageViewer from "@/components/ImageViewer";
 export default {
   name: "App",
   components: {
-    ImageEditor
+    ImageViewer,
   },
   data() {
     return {
       imgList: [
         "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=1612138888,1794405442&fm=26&gp=0.jpg",
         "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=1588620919,359805583&fm=26&gp=0.jpg",
-        "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1652123795,1945063222&fm=26&gp=0.jpg"
+        "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1652123795,1945063222&fm=26&gp=0.jpg",
       ],
-      active: 0
+      active: 0,
     };
   },
   mounted() {
@@ -37,7 +37,7 @@ export default {
     //     viewer.zoomTo(1);
     //   }
     // });
-  }
+  },
 };
 </script>
 
