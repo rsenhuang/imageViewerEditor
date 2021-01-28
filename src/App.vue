@@ -14,7 +14,7 @@
 import "@/assets/font.js";
 import "viewerjs/dist/viewer.css";
 // import Viewer from "viewerjs";
-import ImageViewer from "@/components/ImageViewer";
+import ImageViewer from "./components/ImageViewer";
 export default {
   name: "App",
   components: {
