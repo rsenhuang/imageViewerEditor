@@ -32,6 +32,7 @@
             :height="sketchHeight"
             style="border: 1px dashed #ddd;"></canvas>
     <div class="acts">
+      {{center.x}} , {{center.y}}
       <div class="act_btn"
            @click="handleRotate(false)">
         <svg class="icon"
@@ -150,11 +151,8 @@ export default {
     canvas = document.getElementById("canvas");
     cxt = canvas.getContext("2d");
     let image = new Image();
-    image.onload = () => {
-      console.log("loaded");
-    };
     image.onerror = (err) => {
-      console.log("loaded err", err);
+      throw new Error("load image fail:" + err);
     };
     image.setAttribute("crossOrigin", "anonymous");
     image.src = this.imgUrl;
@@ -179,18 +177,15 @@ export default {
   methods: {
     // x: x轴，y：y轴 reset: 重置原点
     moveCenter(x = 0, y = 0, reset = false) {
-      console.log("原中心点", this.center.x, this.center.y);
       if (reset) {
         this.center = {
           x: 0,
           y: 0,
         };
-        // cxt.translate(-x, -y);
       }
       cxt.translate(x, y);
       this.center.x += x;
       this.center.y += y;
-      console.log("end", this.center.x, this.center.y);
     },
     // 计算宽高
     computedSize(image = {}) {
@@ -263,7 +258,7 @@ export default {
     },
     // 缩放
     handleScale(big = true) {
-      // let size = 1 + (big ? 0.2 : -0.2);
+      this.canCut = false;
       let size = big ? 1.2 : 5 / 6;
       this.scale = this.scale * (big ? 1.2 : 5 / 6);
       cxt.clearRect(
@@ -302,7 +297,6 @@ export default {
       this.canCut = false;
       this.cutStartX = -this.cutWidth / 2;
       this.cutStartY = -this.cutHeight / 2;
-      // this.changeCutArea(false);
       // 重置宽高
       this.sketchWidth = 0;
       this.sketchHeight = 0;
@@ -322,7 +316,6 @@ export default {
       image.src = this.imgUrl;
       this.scopeX = image.width;
       this.scopeY = image.height;
-      console.log("当前缩放等级", this.scale);
       image.addEventListener("load", () => {
         this.$nextTick(() => {
           /*
@@ -330,17 +323,17 @@ export default {
            */
           // 旋转复原
           if (this.direction % 2) {
-            // if (this.direction === 1){
-            //   this.moveCenter(image.width / 2 , image.height / 2, true);
-            // } else{
+            // 缩放复原
+            cxt.scale(1 / this.scale, 1 / this.scale);
             cxt.rotate(((5 - this.direction) * 90 * Math.PI) / 180);
-            // }
+            this.center = Object.assign({}, this.center, {
+              x: image.width / 2,
+              y: image.height / 2,
+            });
           } else {
             this.moveCenter(image.width / 2, image.height / 2, true);
           }
           this.direction = 1;
-          // 缩放复原
-          cxt.scale(1 / this.scale, 1 / this.scale);
           this.scale = 1;
           this.sketchWidth = image.width;
           this.sketchHeight = image.height;
@@ -367,8 +360,14 @@ export default {
     toggleCut() {
       if (!this.canCut) {
         this.canCut = true;
-        this.cutStartX = -this.cutWidth / 2;
-        this.cutStartY = -this.cutHeight / 2;
+        this.cutStartX =
+          this.cutWidth < this.sketchWidth
+            ? -this.cutWidth / 2
+            : -this.sketchWidth / 2;
+        this.cutStartY =
+          this.cutHeight < this.sketchHeight
+            ? -this.cutHeight / 2
+            : -this.sketchHeight / 2;
         this.readyMoveCutArea();
       }
     },
@@ -731,6 +730,7 @@ export default {
     },
     // 启动涂鸦
     toggleGraffiti(active = true) {
+      this.canCut = false;
       if (active) {
         canvas.addEventListener("mousedown", this.DrawLine);
       } else {
@@ -739,15 +739,27 @@ export default {
     },
     // 划线
     DrawLine(e) {
-      let ox = (1 / this.scale) * (e.pageX - canvas.offsetLeft - this.center.x),
-        oy = (1 / this.scale) * (e.pageY - canvas.offsetTop - this.center.y);
+      let canvasPosition = canvas.getBoundingClientRect();
+      let ox =
+          (1 / this.scale) * (e.clientX - canvasPosition.left - this.center.x),
+        oy =
+          (1 / this.scale) * (e.clientY - canvasPosition.top - this.center.y);
       cxt.moveTo(ox, oy);
+      console.log(
+        "移动至",
+        canvas.getBoundingClientRect(),
+        canvas.screenY,
+        e,
+        ox,
+        oy
+      );
       canvas.onmousemove = (event) => {
         let ox2 =
             (1 / this.scale) *
-            (event.pageX - canvas.offsetLeft - this.center.x),
+            (event.clientX - canvasPosition.left - this.center.x),
           oy2 =
-            (1 / this.scale) * (event.pageY - canvas.offsetTop - this.center.y);
+            (1 / this.scale) *
+            (event.clientY - canvasPosition.top - this.center.y);
         cxt.lineTo(ox2, oy2);
         cxt.stroke();
       };
