@@ -1,0 +1,115 @@
+
+@keyframes modal-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+  }
+}
+
+@keyframes modal-out {
+  0% {
+  }
+  100% {
+    opacity: 0;
+  }
+}
+*{
+  margin: 0;
+}
+
+html, body{
+  width: 100%;
+  height: 100%;
+}
+.i_modal {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  z-index: 3000;
+}
+.modal_bg-enter {
+  animation: modal-in 0.2s ease;
+}
+
+.modal_bg-leave {
+  animation: modal-out 0.2s ease forwards;
+}
+
+.modal_bg {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  // opacity: 0.5;
+  background: #aaa;
+  z-index: 99;
+}
+.acts {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  padding: 10px;
+  bottom: 0;
+  width: 100%;
+  z-index: 1001;
+}
+.act_btn {
+  margin-right: 20px;
+  border: 1px solid #ddd;
+  text-align: center;
+  border-radius: 50%;
+  color: #333;
+  padding: 10px;
+  background: white;
+  font-size: 20px;
+  line-height: 20px;
+  &:hover {
+    color: white;
+    background: rgb(47, 193, 238);
+    border: 1px solid rgb(47, 193, 238);
+    cursor: pointer;
+  }
+}
+.disabled{ 
+  background: #999;
+  text-align: center;
+  border-radius: 50%; 
+  padding: 10px; 
+  font-size: 20px;
+  line-height: 20px;
+  &:hover {
+    cursor: url(/src/assets/forbid.cur);
+    background: #999;
+  }
+}
+.modal_close{
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 20px;
+  line-height: 20px;
+  border-radius: 50%;
+  padding: 10px;
+  color: #666;
+  background: #ccc;
+  z-index: 1001;
+  &:hover{
+    color: #333;
+    cursor: pointer;
+    background: #eee;
+  }
+}
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
+}

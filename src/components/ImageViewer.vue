@@ -1,111 +1,134 @@
 <template>
-  <div class="canvas_container">
-    <div class="img_container"
-         :style="{width: minWidth + 'px', height: minWidth + 'px'}">
-      <canvas id="canvas"
-              :width="scopeX"
-              :height="scopeY"
-              style="border: 1px dashed #ddd;"></canvas>
-      <div id="cut_area"
-           v-show="canCut"
-           :style="{width: sketchWidth + 'px', height: sketchHeight + 'px'}">
-        <div id="cut_content"></div>
-        <!-- 阴影 -->
-        <div id="cut_left"></div>
-        <div id="cut_right"></div>
-        <div id="cut_top"></div>
-        <div id="cut_bottom"></div>
-        <!-- 可缩放边 -->
-        <div id="border_left"></div>
-        <div id="border_right"></div>
-        <div id="border_top"></div>
-        <div id="border_bottom"></div>
-        <!-- 缩放边顶角 -->
-        <div id="border_lt"></div>
-        <div id="border_rt"></div>
-        <div id="border_lb"></div>
-        <div id="border_rb"></div>
+  <transition @after-enter="afterEnter"
+              @after-leave="afterLeave">
+    <div class="i_modal"
+         v-show="visible">
+      <div class="canvas_container">
+        <div class="img_container"
+             :style="{width: minWidth + 'px' }">
+          <div class="pre_title">原图</div>
+          <canvas id="canvas"
+                  :width="scopeX"
+                  :height="scopeY"
+                  style="border: 1px dashed #ddd;"></canvas>
+          <div id="cut_area"
+               v-show="canCut"
+               :style="{width: sketchWidth + 'px', height: sketchHeight + 'px'}">
+            <div id="cut_content"></div>
+            <!-- 阴影 -->
+            <div id="cut_left"></div>
+            <div id="cut_right"></div>
+            <div id="cut_top"></div>
+            <div id="cut_bottom"></div>
+            <!-- 可缩放边 -->
+            <div id="border_left"></div>
+            <div id="border_right"></div>
+            <div id="border_top"></div>
+            <div id="border_bottom"></div>
+            <!-- 缩放边顶角 -->
+            <div id="border_lt"></div>
+            <div id="border_rt"></div>
+            <div id="border_lb"></div>
+            <div id="border_rb"></div>
+          </div>
+        </div>
+        <canvas id="sketch"
+                :width="skecthDrawWidth"
+                :height="skecthDrawHeight"
+                style="border: 1px dashed #ddd;"></canvas>
+
+        <div class="pre_img">
+          <div class="pre_title">效果图</div>
+          <img v-if="endImage"
+               :src="endImage"
+               alt />
+        </div>
       </div>
+      <div class="acts">
+        <!-- {{center.x}} , {{center.y}} -->
+        <div class="act_btn"
+             @click="handleRotate(false)">
+          <svg class="icon"
+               aria-hidden="true">
+            <use xlink:href="#icon-nishizhenxuanzhuan" />
+          </svg>
+          <!-- 逆时针旋转 -->
+        </div>
+        <div class="act_btn"
+             @click="handleRotate(true)">
+          <svg class="icon"
+               aria-hidden="true">
+            <use xlink:href="#icon-shunshizhenxuanzhuan" />
+          </svg>
+          <!-- 顺时针旋转 -->
+        </div>
+        <div class="act_btn"
+             @click="handleScale(true)">
+          <svg class="icon"
+               aria-hidden="true">
+            <use xlink:href="#icon-fangda" />
+          </svg>
+          <!-- 放大 -->
+        </div>
+        <div class="act_btn"
+             @click="handleScale(false)">
+          <svg class="icon"
+               aria-hidden="true">
+            <use xlink:href="#icon-zoomOut" />
+          </svg>
+          <!-- 缩小 -->
+        </div>
+        <div class="act_btn"
+             @click="toggleCut">
+          <svg class="icon"
+               aria-hidden="true">
+            <use xlink:href="#icon-caijian1" />
+          </svg>
+          <!-- 裁剪 -->
+        </div>
+        <div class="act_btn"
+             @click="toggleGraffiti">
+          <svg class="icon"
+               aria-hidden="true">
+            <use xlink:href="#icon-huabi" />
+          </svg>
+          <!-- 涂鸦 -->
+        </div>
+        <div class="act_btn"
+             @click="reset">
+          <svg class="icon"
+               aria-hidden="true">
+            <use xlink:href="#icon-chehui" />
+          </svg>
+          <!-- 还原 -->
+        </div>
+        <div class="act_btn"
+             @click="canvasToUrl">
+          <svg class="icon"
+               aria-hidden="true">
+            <use xlink:href="#icon-yulan" />
+          </svg>
+          <!-- 预览 -->
+        </div>
+        <div :class="[endImage ? 'act_btn' : 'disabled']"
+             @click="handleSave">
+          <svg class="icon"
+               aria-hidden="true">
+            <use xlink:href="#icon-baocun" />
+          </svg>
+          <!-- 保存 -->
+        </div>
+      </div>
+      <div class="modal_close"
+           @click="handleClose">
+        <svg class="icon"
+             aria-hidden="true">
+          <use xlink:href="#icon-guanbi" />
+        </svg>
+      </div>
+      <div class="modal_bg"></div>
     </div>
-    <canvas id="sketch"
-            :width="sketchWidth"
-            :height="sketchHeight"
-            style="border: 1px dashed #ddd;"></canvas>
-    <div class="acts">
-      {{center.x}} , {{center.y}}
-      <div class="act_btn"
-           @click="handleRotate(false)">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-nishizhenxuanzhuan" />
-        </svg>
-        <!-- 逆时针旋转 -->
-      </div>
-      <div class="act_btn"
-           @click="handleRotate(true)">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-shunshizhenxuanzhuan" />
-        </svg>
-        <!-- 顺时针旋转 -->
-      </div>
-      <div class="act_btn"
-           @click="handleScale(true)">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-fangda" />
-        </svg>
-        <!-- 放大 -->
-      </div>
-      <div class="act_btn"
-           @click="handleScale(false)">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-zoomOut" />
-        </svg>
-        <!-- 缩小 -->
-      </div>
-      <div class="act_btn"
-           @click="toggleCut">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-caijian1" />
-        </svg>
-        <!-- 裁剪 -->
-      </div>
-      <div class="act_btn"
-           @click="toggleGraffiti">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-huabi" />
-        </svg>
-        <!-- 涂鸦 -->
-      </div>
-      <div class="act_btn"
-           @click="reset">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-chehui" />
-        </svg>
-        <!-- 还原 -->
-      </div>
-      <div class="act_btn"
-           @click="canvasToUrl">
-        <svg class="icon"
-             aria-hidden="true">
-          <use xlink:href="#icon-baocun" />
-        </svg>
-        <!-- 保存 -->
-      </div>
-    </div>
-    <div>
-      <div>效果图</div>
-      <img v-if="endImage"
-           :src="endImage"
-           alt
-           height="300" />
-    </div>
-  </div>
+  </transition>
 </template>
 
 <script>
@@ -118,6 +141,14 @@ export default {
     imgUrl: {
       type: String,
       default: "",
+    },
+    visible: {
+      type: Boolean,
+      default: false,
+    },
+    appendToBody: {
+      type: Boolean,
+      default: true,
     },
   },
   data() {
@@ -145,6 +176,31 @@ export default {
       startDom: { x: 0, y: 0 }, // 拖拽起点
       borderWidth: 10, // 可伸缩宽度
     };
+  },
+  watch: {
+    visible(val) {
+      if (val) {
+        if (this.appendToBody) {
+          document.body.appendChild(this.$el);
+        }
+      }
+    },
+  },
+  computed: {
+    skecthDrawWidth: function () {
+      if (this.canCut) {
+        return this.cutWidth;
+      } else {
+        return this.sketchWidth;
+      }
+    },
+    skecthDrawHeight: function () {
+      if (this.canCut) {
+        return this.cutHeight;
+      } else {
+        return this.sketchHeight;
+      }
+    },
   },
   mounted() {
     document.onmouseup = () => (document.onmousemove = null);
@@ -175,6 +231,20 @@ export default {
     });
   },
   methods: {
+    afterEnter() {
+      this.$emit("opened");
+    },
+    afterLeave() {
+      this.$emit("closed");
+    },
+    handleClose() {
+      this.$emit("closed");
+    },
+    handleSave() {
+      if (this.endImage) {
+        this.$emit("save", this.endImage);
+      }
+    },
     // x: x轴，y：y轴 reset: 重置原点
     moveCenter(x = 0, y = 0, reset = false) {
       if (reset) {
@@ -294,6 +364,7 @@ export default {
       });
     },
     reset() {
+      this.endImage = "";
       this.canCut = false;
       this.cutStartX = -this.cutWidth / 2;
       this.cutStartY = -this.cutHeight / 2;
@@ -350,16 +421,20 @@ export default {
     },
     // 标识中心
     showCenter() {
-      cxt.beginPath();
-      cxt.fillStyle = "blue";
-      cxt.rect(-5, -5, 10, 10);
-      cxt.fill();
-      cxt.closePath();
+      // cxt.beginPath();
+      // cxt.fillStyle = "blue";
+      // cxt.rect(-5, -5, 10, 10);
+      // cxt.fill();
+      // cxt.closePath();
     },
     // 启动裁剪
     toggleCut() {
       if (!this.canCut) {
         this.canCut = true;
+        this.initCut = false;
+        this.cutWidth = 100; // 裁剪区宽
+        this.cutHeight = 100; // 裁剪区高
+        this.startDom = { x: 0, y: 0 };
         this.cutStartX =
           this.cutWidth < this.sketchWidth
             ? -this.cutWidth / 2
@@ -374,17 +449,6 @@ export default {
     // 启动裁剪框移动
     readyMoveCutArea() {
       let cutContent = document.getElementById("cut_content");
-      // if (cutContent.onmousedown) {
-      //   cutContent.onmousedown = null;
-      //   cutContent.onmouseup = () => {
-      //     document.onmousemove = null;
-      //     cutContent.onmousedown = e2 => {
-      //       document.onmousemove = event => {
-      //         this.moveCutArea(event, e2);
-      //       };
-      //     };
-      //   };
-      // } else {
       // 初始化
       this.moveCutArea();
       cutContent.onmousedown = (e) => {
@@ -394,7 +458,7 @@ export default {
         this.initCut = true;
         document.onmousemove = (event) => {
           event.preventDefault();
-          this.moveCutArea(event, e);
+          this.moveCutArea(event);
         };
         cutContent.onmouseup = () => {
           document.onmousemove = null;
@@ -745,14 +809,6 @@ export default {
         oy =
           (1 / this.scale) * (e.clientY - canvasPosition.top - this.center.y);
       cxt.moveTo(ox, oy);
-      console.log(
-        "移动至",
-        canvas.getBoundingClientRect(),
-        canvas.screenY,
-        e,
-        ox,
-        oy
-      );
       canvas.onmousemove = (event) => {
         let ox2 =
             (1 / this.scale) *
@@ -769,9 +825,11 @@ export default {
     },
     // 生成图片
     canvasToUrl() {
+      this.endImage = "";
       // 在新的画布上绘制
       const sketch = document.getElementById("sketch");
       const sketchCxt = sketch.getContext("2d");
+      sketchCxt.clearRect(0, 0, this.sketchWidth, this.sketchHeight);
       let x = 0,
         y = 0,
         width = 0,
@@ -786,17 +844,27 @@ export default {
           // 图片横向
           x = 0;
           y = (this.scopeY - this.sketchHeight) / 2;
+          if (this.scale < 1) {
+            x = (this.scopeX - this.sketchWidth) / 2;
+          }
         } else {
           // 图片竖向
-          x = (this.sketchWidth - this.sketchWidth) / 2;
+          x = (this.scopeX - this.sketchWidth) / 2;
           y = 0;
+          if (this.scale < 1) {
+            y = (this.scopeY - this.sketchHeight) / 2;
+          }
         }
-        width = this.sketchWidth * this.scale;
-        height = this.sketchHeight * this.scale;
+        if (this.scale > 1) {
+          width = this.sketchWidth * this.scale;
+          height = this.sketchHeight * this.scale;
+        } else {
+          width = this.sketchWidth;
+          height = this.sketchHeight;
+        }
       }
-      console.log(x, y, width, height);
+      // console.log(this.scale, x, y, width, height);
       let canvasData = cxt.getImageData(x, y, width, height);
-      console.log("data", canvasData);
       sketchCxt.putImageData(canvasData, 0, 0);
       let url = sketch.toDataURL("image/png", 1);
       this.endImage = url;
@@ -805,19 +873,34 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .canvas_container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  // background: white;
   border: 1px solid #ddd;
-  padding: 10px;
   width: 100%;
-  display: inline-block;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
   position: relative;
+  height: calc(100% - 70px);
   .img_container {
+    flex-basis: 50%;
+    flex-shrink: 1;
     display: inline-flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
     position: relative;
+    border-right: 1px solid white;
+    z-index: 10;
+    height: calc(100% - 20px);
+    overflow-y: auto;
     #cut_area {
       position: absolute;
       z-index: 100;
@@ -838,37 +921,29 @@ export default {
       }
     }
   }
+  .pre_title {
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    font-size: 16px;
+    line-height: 16px;
+    margin: 20px 0;
+  }
+  .pre_img {
+    height: calc(100% - 20px);
+    position: relative;
+    flex-basis: 50%;
+    flex-shrink: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   #sketch {
     display: inline;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
   }
-}
-.acts {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  position: absolute;
-  top: 600px;
-}
-.act_btn {
-  margin-right: 20px;
-  border: 1px solid #ddd;
-  width: 100px;
-  text-align: center;
-  border-radius: 5px;
-  color: #333;
-  padding: 10px 0;
-  &:hover {
-    color: white;
-    background: chocolate;
-    border: 1px solid chocolate;
-    cursor: pointer;
-  }
-}
-.icon {
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.15em;
-  fill: currentColor;
-  overflow: hidden;
 }
 </style>

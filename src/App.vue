@@ -1,16 +1,14 @@
 <template>
   <div>
-    <!-- <div class="img_container">
-      <div v-for="(url, index) in imgList" :key="index">
-        <img v-if="index=== active" :src="url" />
-      </div>
-      <div id="image"></div>
-    </div>-->
-    <ImageViewer :imgUrl="imgList[0]" />
+    <div @click="toggleShow">{{ show ? '关闭' : '打开' }}</div>
+    <ImageViewer :imgUrl="imgList[0]"
+                 :visible="show"
+                 @closed="show = false" />
   </div>
 </template>
 
 <script>
+import "@/assets/var.scss";
 import ImageViewer from "./components/ImageViewer";
 export default {
   name: "App",
@@ -25,15 +23,13 @@ export default {
         "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1652123795,1945063222&fm=26&gp=0.jpg",
       ],
       active: 0,
+      show: false,
     };
   },
-  mounted() {
-    // const viewer = new Viewer(document.getElementById("image"), {
-    //   inline: true,
-    //   viewed() {
-    //     viewer.zoomTo(1);
-    //   }
-    // });
+  methods: {
+    toggleShow() {
+      this.show = !this.show;
+    },
   },
 };
 </script>
@@ -45,18 +41,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   /* text-align: center; */
   color: #2c3e50;
-  margin-top: 60px;
-}
-.img_container {
-  display: inline-block;
-  padding: 10px;
-  margin-right: 10px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  width: 500px;
-  vertical-align: top;
-  img {
-    width: 500px;
-  }
+  padding-top: 60px;
 }
 </style>
