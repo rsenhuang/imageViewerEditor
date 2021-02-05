@@ -132,7 +132,8 @@
 </template>
 
 <script>
-import "@/assets/font.js";
+import "../assets/var.scss";
+import "../assets/font.js";
 let cxt = undefined;
 let canvas = undefined;
 export default {
@@ -260,16 +261,25 @@ export default {
     },
     // 计算宽高
     computedSize(image = {}) {
-      let long = image.width > image.height ? image.width : image.height;
-      let short = image.width > image.height ? image.height : image.width;
+      // 宽大
+      let wider = image.width > image.height;
+      let long = wider ? image.width : image.height;
+      let short = wider ? image.height : image.width;
       if (this.direction % 2) {
-        this.scopeX = long;
-        this.scopeY = short;
+        this.scopeX = wider ? long : short;
+        this.scopeY = wider ? short : long;
       } else {
-        this.scopeX = short;
-        this.scopeY = long;
+        this.scopeX = wider ? short : long;
+        this.scopeY = wider ? long : short;
       }
       this.minWidth = long;
+      console.log(
+        this.direction,
+        image.width,
+        image.height,
+        this.scopeX,
+        this.scopeY
+      );
       return {
         height: image.height,
         width: image.width,

@@ -8,7 +8,6 @@
 </template>
 
 <script>
-import "@/assets/var.scss";
 import ImageViewer from "./components/ImageViewer";
 export default {
   name: "App",
