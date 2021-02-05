@@ -367,6 +367,8 @@ export default {
     reset() {
       this.endImage = "";
       this.canCut = false;
+      this.scrawl = false;
+      canvas.removeEventListener("mousedown", this.DrawLine);
       this.cutStartX = -this.cutWidth / 2;
       this.cutStartY = -this.cutHeight / 2;
       // 重置宽高
@@ -795,22 +797,24 @@ export default {
     // 启动涂鸦
     toggleGraffiti() {
       this.canCut = false;
+      this.scrawl = !this.scrawl;
       if (this.scrawl) {
         canvas.addEventListener("mousedown", this.DrawLine);
       } else {
         canvas.removeEventListener("mousedown", this.DrawLine);
       }
-      this.scrawl = !this.scrawl;
       console.log("=====", this.scrawl);
     },
     // 划线
     DrawLine(e) {
+      cxt.beginPath();
       let canvasPosition = canvas.getBoundingClientRect();
       let ox =
           (1 / this.scale) * (e.clientX - canvasPosition.left - this.center.x),
         oy =
           (1 / this.scale) * (e.clientY - canvasPosition.top - this.center.y);
       cxt.moveTo(ox, oy);
+      cxt.strokeStyle = "red";
       canvas.onmousemove = (event) => {
         let ox2 =
             (1 / this.scale) *
