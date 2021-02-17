@@ -1,19 +1,20 @@
 <template>
-  <transition @after-enter="afterEnter"
-              @after-leave="afterLeave">
-    <div class="i_modal"
-         v-show="visible">
+  <transition @after-enter="afterEnter" @after-leave="afterLeave">
+    <div class="i_modal" v-show="visible">
       <div class="canvas_container">
-        <div class="img_container"
-             :style="{width: minWidth + 'px' }">
+        <div class="img_container">
           <div class="pre_title">原图</div>
-          <canvas id="canvas"
-                  :width="scopeX"
-                  :height="scopeY"
-                  style="border: 1px dashed #ddd;"></canvas>
-          <div id="cut_area"
-               v-show="canCut"
-               :style="{width: sketchWidth + 'px', height: sketchHeight + 'px'}">
+          <canvas
+            id="canvas"
+            :width="scopeX"
+            :height="scopeY"
+            style="border: 1px dashed #ddd"
+          ></canvas>
+          <div
+            id="cut_area"
+            v-show="canCut"
+            :style="{ width: sketchWidth + 'px', height: sketchHeight + 'px' }"
+          >
             <div id="cut_content"></div>
             <!-- 阴影 -->
             <div id="cut_left"></div>
@@ -32,97 +33,85 @@
             <div id="border_rb"></div>
           </div>
         </div>
-        <canvas id="sketch"
-                :width="skecthDrawWidth"
-                :height="skecthDrawHeight"
-                style="border: 1px dashed #ddd;"></canvas>
+        <canvas
+          id="sketch"
+          :width="skecthDrawWidth"
+          :height="skecthDrawHeight"
+          style="border: 1px dashed #ddd"
+        ></canvas>
 
         <div class="pre_img">
-          <div class="pre_title">效果图</div>
-          <img v-if="endImage"
-               :src="endImage"
-               alt />
+          <div class="pre_title">
+            效果图{{ scopeX }}-{{ scopeY }}>>> {{ sketchWidth }} -
+            {{ sketchHeight }}
+          </div>
+          <img
+            :style="{ width: scopeX + 'px', height: scopeY + 'px' }"
+            v-if="endImage"
+            :src="endImage"
+            alt
+          />
         </div>
       </div>
       <div class="acts">
         <!-- {{center.x}} , {{center.y}} -->
-        <div class="act_btn"
-             @click="handleRotate(false)">
-          <svg class="icon"
-               aria-hidden="true">
+        <div class="act_btn" @click="handleRotate(false)">
+          <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-nishizhenxuanzhuan" />
           </svg>
           <!-- 逆时针旋转 -->
         </div>
-        <div class="act_btn"
-             @click="handleRotate(true)">
-          <svg class="icon"
-               aria-hidden="true">
+        <div class="act_btn" @click="handleRotate(true)">
+          <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-shunshizhenxuanzhuan" />
           </svg>
           <!-- 顺时针旋转 -->
         </div>
-        <div class="act_btn"
-             @click="handleScale(true)">
-          <svg class="icon"
-               aria-hidden="true">
+        <div class="act_btn" @click="handleScale(true)">
+          <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-fangda" />
           </svg>
           <!-- 放大 -->
         </div>
-        <div class="act_btn"
-             @click="handleScale(false)">
-          <svg class="icon"
-               aria-hidden="true">
+        <div class="act_btn" @click="handleScale(false)">
+          <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-zoomOut" />
           </svg>
           <!-- 缩小 -->
         </div>
-        <div class="act_btn"
-             @click="toggleCut">
-          <svg class="icon"
-               aria-hidden="true">
+        <div class="act_btn" @click="toggleCut">
+          <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-caijian1" />
           </svg>
           <!-- 裁剪 -->
         </div>
-        <div class="act_btn"
-             @click="toggleGraffiti">
-          <svg class="icon"
-               aria-hidden="true">
+        <div class="act_btn" @click="toggleGraffiti">
+          <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-huabi" />
           </svg>
           <!-- 涂鸦 -->
         </div>
-        <div class="act_btn"
-             @click="reset">
-          <svg class="icon"
-               aria-hidden="true">
+        <div class="act_btn" @click="reset">
+          <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-chehui" />
           </svg>
           <!-- 还原 -->
         </div>
-        <div class="act_btn"
-             @click="canvasToUrl">
-          <svg class="icon"
-               aria-hidden="true">
+        <div class="act_btn" @click="canvasToUrl">
+          <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-yulan" />
           </svg>
           <!-- 预览 -->
         </div>
-        <div :class="[endImage ? 'act_btn' : 'disabled']"
-             @click="handleSave">
-          <svg class="icon"
-               aria-hidden="true">
+        <div :class="[endImage ? 'act_btn' : 'disabled']" @click="handleSave">
+          <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-baocun" />
           </svg>
           <!-- 保存 -->
         </div>
       </div>
-      <div class="modal_close"
-           @click="handleClose">
-        <svg class="icon"
-             aria-hidden="true">
+      <div class="modal_close" @click="handleClose">
+        <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi" />
         </svg>
       </div>
@@ -177,6 +166,8 @@ export default {
       startDom: { x: 0, y: 0 }, // 拖拽起点
       borderWidth: 10, // 可伸缩宽度
       scrawl: false, // 涂鸦模式
+      maxHeight: 0,
+      maxWidth: 0,
     };
   },
   watch: {
@@ -191,20 +182,22 @@ export default {
   computed: {
     skecthDrawWidth: function () {
       if (this.canCut) {
-        return this.cutWidth;
+        return this.cutWidth + 2 * this.borderWidth;
       } else {
         return this.sketchWidth;
       }
     },
     skecthDrawHeight: function () {
       if (this.canCut) {
-        return this.cutHeight;
+        return this.cutHeight + 2 * this.borderWidth;
       } else {
         return this.sketchHeight;
       }
     },
   },
   mounted() {
+    this.maxHeight = document.body.clientHeight - 175;
+    this.maxWidth = (document.body.clientWidth - 40) / 2;
     document.onmouseup = () => (document.onmousemove = null);
     canvas = document.getElementById("canvas");
     cxt = canvas.getContext("2d");
@@ -263,8 +256,25 @@ export default {
     computedSize(image = {}) {
       // 宽大
       let wider = image.width > image.height;
-      let long = wider ? image.width : image.height;
-      let short = wider ? image.height : image.width;
+      let long;
+      let short;
+      if (wider) {
+        if (this.maxWidth) {
+          long = this.maxWidth;
+          short = (this.maxWidth * image.height) / image.width;
+        } else {
+          long = image.width;
+          short = image.height;
+        }
+      } else {
+        if (this.maxHeight) {
+          long = this.maxHeight;
+          short = (this.maxHeight * image.height) / image.width;
+        } else {
+          long = image.height;
+          short = image.width;
+        }
+      }
       if (this.direction % 2) {
         this.scopeX = wider ? long : short;
         this.scopeY = wider ? short : long;
@@ -281,8 +291,10 @@ export default {
         this.scopeY
       );
       return {
-        height: image.height,
-        width: image.width,
+        // height: image.height,
+        // width: image.width,
+        width: this.scopeX,
+        height: this.scopeY,
       };
     },
     handleRotate(clockwise = true) {
@@ -314,24 +326,27 @@ export default {
         this.moveCenter(-this.scopeX / 2, -this.scopeY / 2);
         let img = this.computedSize(image);
         this.$nextTick(() => {
-          this.sketchWidth =
-            (this.direction % 2 ? img.width : img.height) * this.scale;
-          this.sketchHeight =
-            (this.direction % 2 ? img.height : img.width) * this.scale;
-          if (this.sketchWidth > this.scopeX) {
-            this.sketchWidth = this.scopeX;
-          }
-          if (this.sketchHeight > this.scopeY) {
-            this.sketchHeight = this.scopeY;
-          }
+          // this.sketchWidth =
+          //   (this.direction % 2 ? img.width : img.height) * this.scale;
+          // this.sketchHeight =
+          //   (this.direction % 2 ? img.height : img.width) * this.scale;
+          // if (this.sketchWidth > this.scopeX) {
+          //   this.sketchWidth = this.scopeX;
+          // }
+          // if (this.sketchHeight > this.scopeY) {
+          //   this.sketchHeight = this.scopeY;
+          // }
+          this.sketchWidth = img.width;
+          this.sketchHeight = img.height;
+          console.log("====rotate===", this.sketchWidth, this.sketchHeight);
           this.moveCenter(this.scopeX / 2, this.scopeY / 2);
           cxt.rotate(((5 - this.direction) * -90 * Math.PI) / 180);
           cxt.drawImage(
             image,
-            -img.width / 2,
-            -img.height / 2,
-            img.width,
-            img.height
+            this.direction % 2 ? -img.width / 2 : -img.height / 2,
+            this.direction % 2 ? -img.height / 2 : -img.width / 2,
+            this.direction % 2 ? img.width : img.height,
+            this.direction % 2 ? img.height : img.width
           );
           this.showCenter();
         });
@@ -354,14 +369,25 @@ export default {
       image.setAttribute("crossOrigin", "anonymous");
       image.addEventListener("load", () => {
         let img = this.computedSize(image);
-        this.sketchWidth = img.width * this.scale;
-        this.sketchHeight = img.height * this.scale;
-        if (this.sketchWidth > this.scopeX) {
-          this.sketchWidth = this.scopeX;
-        }
-        if (this.sketchHeight > this.scopeY) {
-          this.sketchHeight = this.scopeY;
-        }
+        // this.sketchWidth = img.width * this.scale;
+        // this.sketchHeight = img.height * this.scale;
+        // if (this.sketchWidth > this.scopeX) {
+        //   this.sketchWidth = this.scopeX;
+        // }
+        // if (this.sketchHeight > this.scopeY) {
+        //   this.sketchHeight = this.scopeY;
+        // }
+        // this.sketchWidth = img.width * this.scale;
+        // this.sketchHeight = img.height * this.scale;
+        this.sketchWidth = img.width * (this.scale > 1 ? 1 : this.scale);
+        this.sketchHeight = img.height * (this.scale > 1 ? 1 : this.scale);
+        // cxt.drawImage(
+        //   image,
+        //   this.direction % 2 ? -img.width / 2 : -img.height / 2,
+        //   this.direction % 2 ? -img.height / 2 : -img.width / 2,
+        //   this.direction % 2 ? img.width : img.height,
+        //   this.direction % 2 ? img.height : img.width
+        // );
         this.$nextTick(() => {
           cxt.drawImage(
             image,
@@ -879,7 +905,17 @@ export default {
           height = this.sketchHeight;
         }
       }
-      // console.log(this.scale, x, y, width, height);
+      console.log(
+        this.scale,
+        x,
+        y,
+        width,
+        height,
+        this.maxWidth,
+        this.maxHeight
+      );
+      width = width > this.maxWidth ? width : this.maxWidth;
+      height = height > this.maxHeight ? height : this.maxHeight;
       let canvasData = cxt.getImageData(x, y, width, height);
       sketchCxt.putImageData(canvasData, 0, 0);
       let url = sketch.toDataURL("image/png", 1);
@@ -953,6 +989,10 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    // opacity: 0;
+    img {
+      margin: 0 auto;
+    }
   }
   #sketch {
     display: inline;
@@ -960,6 +1000,8 @@ export default {
     top: 0;
     left: 0;
     opacity: 0;
+    // right: 0;
+    // bottom: 0;
   }
 }
 </style>

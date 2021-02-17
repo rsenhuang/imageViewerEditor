@@ -9,6 +9,7 @@
 
 <script>
 import ImageViewer from "./components/ImageViewer";
+import four from '@/assets/5.jpeg'
 export default {
   name: "App",
   components: {
@@ -17,12 +18,10 @@ export default {
   data() {
     return {
       imgList: [
-        "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=1612138888,1794405442&fm=26&gp=0.jpg",
-        "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=1588620919,359805583&fm=26&gp=0.jpg",
-        "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=1652123795,1945063222&fm=26&gp=0.jpg",
+        four,
       ],
       active: 0,
-      show: false,
+      show: true,
     };
   },
   methods: {
