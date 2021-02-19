@@ -9,7 +9,7 @@
 
 <script>
 import ImageViewer from "./components/ImageViewer";
-import four from '@/assets/5.jpeg'
+import four from "@/assets/7.jpg";
 export default {
   name: "App",
   components: {
@@ -17,9 +17,7 @@ export default {
   },
   data() {
     return {
-      imgList: [
-        four,
-      ],
+      imgList: [four],
       active: 0,
       show: true,
     };
