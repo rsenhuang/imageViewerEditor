@@ -84,10 +84,10 @@ html, body{
   padding: 10px; 
   font-size: 20px;
   line-height: 20px;
-  &:hover {
-    cursor: url(/src/assets/forbid.cur);
-    background: #999;
-  }
+  cursor: url("./forbid.cur"), auto;
+}
+.scrawl{
+  cursor: url("./pen.cur"), auto;
 }
 .modal_close{
   position: absolute;

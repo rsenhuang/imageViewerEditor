@@ -9,7 +9,8 @@
           <canvas id="canvas"
                   :width="scopeX"
                   :height="scopeY"
-                  style="border: 1px dashed #ddd"></canvas>
+                  style="border: 1px dashed #ddd"
+                  :class="[scrawl ? 'scrawl' : '']"></canvas>
           <div id="cut_area"
                v-show="canCut"
                :style="{ width: sketchWidth + 'px', height: sketchHeight + 'px' }">
@@ -136,6 +137,7 @@
 <script>
 import "../assets/var.scss";
 import "../assets/font.js";
+import "../assets/forbid.cur";
 import { computedImageSize } from "../util/index";
 let cxt = undefined;
 let canvas = undefined;
@@ -282,6 +284,7 @@ export default {
       };
     },
     handleRotate(clockwise = true) {
+      this.endImage = "";
       this.canCut = false;
       // 顺时针+1，逆时针-1
       if (clockwise) {
@@ -310,16 +313,6 @@ export default {
         this.moveCenter(-this.scopeX / 2, -this.scopeY / 2);
         let img = this.computedSize(image);
         this.$nextTick(() => {
-          // this.sketchWidth =
-          //   (this.direction % 2 ? img.width : img.height) * this.scale;
-          // this.sketchHeight =
-          //   (this.direction % 2 ? img.height : img.width) * this.scale;
-          // if (this.sketchWidth > this.scopeX) {
-          //   this.sketchWidth = this.scopeX;
-          // }
-          // if (this.sketchHeight > this.scopeY) {
-          //   this.sketchHeight = this.scopeY;
-          // }
           this.sketchWidth = this.scopeX;
           this.sketchHeight = this.scopeY;
           this.moveCenter(this.scopeX / 2, this.scopeY / 2);
@@ -332,12 +325,12 @@ export default {
             this.direction % 2 ? img.height : img.width
           );
           this.showCenter();
-          console.log("====rotate===", this.sketchWidth, this.sketchHeight);
         });
       });
     },
     // 缩放
     handleScale(big = true) {
+      this.endImage = "";
       this.canCut = false;
       let size = big ? 1.2 : 5 / 6;
       this.scale = this.scale * (big ? 1.2 : 5 / 6);
@@ -387,21 +380,11 @@ export default {
       let image = new Image();
       image.setAttribute("crossOrigin", "anonymous");
       image.src = this.imgUrl;
-      // this.scopeX = image.width;
-      // this.scopeY = image.height;
       image.addEventListener("load", () => {
         this.moveCenter(-this.scopeX / 2, -this.scopeY / 2);
-        console.log(
-          "before",
-          this.direction,
-          this.scopeX,
-          this.center.x,
-          this.center.y
-        );
         let img = this.computedSize(image);
         if (this.direction % 2) {
           this.$nextTick(() => {
-            console.log("nexttick", this.direction);
             this.moveCenter(this.scopeX / 2, this.scopeY / 2);
             cxt.scale(1 / this.scale, 1 / this.scale);
             cxt.rotate(((5 - this.direction) * 90 * Math.PI) / 180);
@@ -437,43 +420,6 @@ export default {
             this.scale = 1;
           });
         }
-        // this.$nextTick(() => {
-        //   cxt.drawImage(
-        //     image,
-        //     -this.scopeX / 2,
-        //     -this.scopeY / 2,
-        //     this.sketchWidth,
-        //     this.sketchHeight
-        //   );
-        //   this.showCenter();
-        /*
-         *  重点注意：动态修改canvas宽高会导致canvas重新渲染，原点回归左上顶角
-         */
-        // 旋转复原
-        // if (this.direction % 2) {
-        //   // 缩放复原
-        //   cxt.scale(1 / this.scale, 1 / this.scale);
-        //   cxt.rotate(((5 - this.direction) * 90 * Math.PI) / 180);
-        //   this.center = Object.assign({}, this.center, {
-        //     x: image.width / 2,
-        //     y: image.height / 2,
-        //   });
-        // } else {
-        //   this.moveCenter(image.width / 2, image.height / 2, true);
-        // }
-        // this.direction = 1;
-        // this.scale = 1;
-        // this.sketchWidth = image.width;
-        // this.sketchHeight = image.height;
-        // cxt.drawImage(
-        //   image,
-        //   -image.width / 2,
-        //   -image.height / 2,
-        //   image.width,
-        //   image.height
-        // );
-        // this.showCenter();
-        // });
       });
     },
     // 标识中心
@@ -486,6 +432,7 @@ export default {
     },
     // 启动裁剪
     toggleCut() {
+      this.endImage = "";
       if (!this.canCut) {
         this.canCut = true;
         this.initCut = false;
@@ -857,7 +804,6 @@ export default {
       } else {
         canvas.removeEventListener("mousedown", this.DrawLine);
       }
-      console.log("=====", this.scrawl);
     },
     // 划线
     DrawLine(e) {
@@ -923,15 +869,6 @@ export default {
           height = this.sketchHeight;
         }
       }
-      console.log(
-        this.scale,
-        x,
-        y,
-        width,
-        height,
-        this.maxWidth,
-        this.maxHeight
-      );
       width = width > this.maxWidth ? width : this.maxWidth;
       height = height > this.maxHeight ? height : this.maxHeight;
       let canvasData = cxt.getImageData(x, y, width, height);
