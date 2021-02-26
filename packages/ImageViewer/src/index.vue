@@ -176,6 +176,8 @@ export default {
       initCut: false, // 是否初始化裁剪
       cutStartX: 0, // 裁剪开始坐标x
       cutStartY: 0, // 裁剪开始左边y
+      beforeCutStartX: 0, // 裁剪开始坐标x
+      beforeCutStartY: 0, // 裁剪开始左边y
       cutWidth: 100, // 裁剪区宽
       cutHeight: 100, // 裁剪区高
       startCut: false, // 选择裁剪区
@@ -422,7 +424,7 @@ export default {
         }
       });
     },
-    // 标识中心
+    // 标识中心：用于辅助：确定中心位置
     showCenter() {
       // cxt.beginPath();
       // cxt.fillStyle = "blue";
@@ -454,11 +456,15 @@ export default {
     readyMoveCutArea() {
       let cutContent = document.getElementById("cut_content");
       // 初始化
+      this.beforeCutStartX = this.cutStartX;
+      this.beforeCutStartY = this.cutStartY;
       this.moveCutArea();
       cutContent.onmousedown = (e) => {
-        if (!this.initCut) {
-          this.startDom = { x: e.x, y: e.y };
-        }
+        // if (!this.initCut) {
+        this.startDom = { x: e.x, y: e.y };
+        // }
+        this.beforeCutStartX = this.cutStartX;
+        this.beforeCutStartY = this.cutStartY;
         this.initCut = true;
         document.onmousemove = (event) => {
           event.preventDefault();
@@ -473,9 +479,8 @@ export default {
     moveCutArea(event = { x: 0, y: 0 }, startDom = this.startDom) {
       let dx = event.x - startDom.x,
         dy = event.y - startDom.y;
-      // console.log("移动", event.type, dx, dy, startDom.x, startDom.y);
-      let cutStartX = -this.cutWidth / 2 + dx,
-        cutStartY = -this.cutHeight / 2 + dy,
+      let cutStartX = this.beforeCutStartX + dx,
+        cutStartY = this.beforeCutStartY + dy,
         // 左上角坐标的移动范围(minX, minY)到(maxX, maxY)
         maxX = this.sketchWidth / 2 - this.cutWidth - this.borderWidth,
         maxY = this.sketchHeight / 2 - this.cutHeight - this.borderWidth,
@@ -813,6 +818,31 @@ export default {
           (1 / this.scale) * (e.clientX - canvasPosition.left - this.center.x),
         oy =
           (1 / this.scale) * (e.clientY - canvasPosition.top - this.center.y);
+      // switch (this.direction) {
+      //   case 1:
+      //     break;
+      //   case 2:
+      //     oy =
+      //       (1 / this.scale) *
+      //       (e.clientX - canvasPosition.left - this.center.x);
+      //     ox =
+      //       (1 / this.scale) * (e.clientY - canvasPosition.top - this.center.y);
+      //     break;
+      //   case 3:
+      //     ox =
+      //       (1 / this.scale) *
+      //       (e.clientX - canvasPosition.left + this.center.x);
+      //     oy =
+      //       (1 / this.scale) * (e.clientY - canvasPosition.top + this.center.y);
+      //     break;
+      //   case 4:
+      //     oy =
+      //       (1 / this.scale) *
+      //       (e.clientX - canvasPosition.left + this.center.x);
+      //     ox =
+      //       (1 / this.scale) * (e.clientY - canvasPosition.top + this.center.y);
+      //     break;
+      // }
       cxt.moveTo(ox, oy);
       cxt.strokeStyle = "red";
       canvas.onmousemove = (event) => {
