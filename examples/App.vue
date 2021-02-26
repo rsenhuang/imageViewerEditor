@@ -8,13 +8,13 @@
 </template>
 
 <script>
-import ImageViewer from "./components/ImageViewer";
-import four from "@/assets/7.jpg";
+// import ImageViewer from "~/ImageViewer";
+import four from "./assets/7.jpg";
 export default {
   name: "App",
-  components: {
-    ImageViewer,
-  },
+  // components: {
+  //   ImageViewer,
+  // },
   data() {
     return {
       imgList: [four],

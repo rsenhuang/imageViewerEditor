@@ -135,10 +135,10 @@
 </template>
 
 <script>
-import "../assets/var.scss";
-import "../assets/font.js";
-import "../assets/forbid.cur";
-import { computedImageSize } from "../util/index";
+import "../../assets/var.scss";
+import "../../assets/font.js";
+import "../../assets/forbid.cur";
+import { computedImageSize } from "../../util/index";
 let cxt = undefined;
 let canvas = undefined;
 export default {
@@ -622,7 +622,7 @@ export default {
       switch (dom) {
         case "bl":
           document.onmousemove = (ee) => {
-            let moveDis = ee?.x - se?.x;
+            let moveDis = ee.x - se.x;
             let startX = sx + moveDis;
             if (startX >= minX && startX < sx + sw) {
               this.cutStartX = sx + moveDis;
@@ -635,7 +635,7 @@ export default {
           break;
         case "br":
           document.onmousemove = (ee) => {
-            let moveDis = ee?.x - se?.x;
+            let moveDis = ee.x - se.x;
             if (sx + sw + moveDis <= maxX && sw > -moveDis) {
               this.cutWidth = sw + moveDis;
             } else {
@@ -646,7 +646,7 @@ export default {
           break;
         case "bt":
           document.onmousemove = (ee) => {
-            let moveDis = ee?.y - se?.y;
+            let moveDis = ee.y - se.y;
             let startY = sy + moveDis;
             if (startY < sy + sh && startY >= minY) {
               this.cutStartY = sy + moveDis;
@@ -659,7 +659,7 @@ export default {
           break;
         case "bb":
           document.onmousemove = (ee) => {
-            let moveDis = ee?.y - se?.y;
+            let moveDis = ee.y - se.y;
             if (sy + sh + moveDis <= maxY && sh > -moveDis) {
               this.cutHeight = sh + moveDis;
             } else {
@@ -671,8 +671,8 @@ export default {
 
         case "lt":
           document.onmousemove = (ee) => {
-            let movex = ee?.x - se?.x;
-            let movey = ee?.y - se?.y;
+            let movex = ee.x - se.x;
+            let movey = ee.y - se.y;
             if (sx + movex >= minX && movex < sw) {
               this.cutWidth = sw - movex;
               this.cutStartX = sx + movex;
@@ -686,8 +686,8 @@ export default {
           break;
         case "rt":
           document.onmousemove = (ee) => {
-            let movex = ee?.x - se?.x;
-            let movey = ee?.y - se?.y;
+            let movex = ee.x - se.x;
+            let movey = ee.y - se.y;
             if (sx + sw + movex <= maxX && sw > -movex) {
               this.cutWidth = sw + movex;
             }
@@ -700,8 +700,8 @@ export default {
           break;
         case "lb":
           document.onmousemove = (ee) => {
-            let movex = ee?.x - se?.x;
-            let movey = ee?.y - se?.y;
+            let movex = ee.x - se.x;
+            let movey = ee.y - se.y;
             if (sx + movex >= minX && sw > movex) {
               this.cutWidth = sw - movex;
               this.cutStartX = sx + movex;
@@ -714,8 +714,8 @@ export default {
           break;
         case "rb":
           document.onmousemove = (ee) => {
-            let movex = ee?.x - se?.x;
-            let movey = ee?.y - se?.y;
+            let movex = ee.x - se.x;
+            let movey = ee.y - se.y;
             if (sx + sw + movex <= maxX && sw > -movex) {
               this.cutWidth = sw + movex;
             }

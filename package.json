@@ -2,9 +2,14 @@
   "name": "image-viewer-editor",
   "version": "1.2.8",
   "private": false,
-  "main": "./dist/image-viewer.js",
+  "main": "packages/index.js",
+  "keywords": [
+    "images",
+    "vue"
+  ],
   "license": "MIT",
   "scripts": {
+    "lib": "vue-cli-service build --target lib --name image-viewer-editor --dest lib packages/index.js",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
@@ -16,6 +21,7 @@
     "vue": "^3.0.0"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.13.0",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
