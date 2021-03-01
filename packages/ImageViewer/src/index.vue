@@ -30,6 +30,7 @@
             <div id="border_rt"></div>
             <div id="border_lb"></div>
             <div id="border_rb"></div>
+            <div id="cut_size">{{ cutWidth + 2 * borderWidth }} × {{ cutHeight + 2 * borderWidth }}</div>
           </div>
         </div>
         <canvas id="sketch"
@@ -531,7 +532,20 @@ export default {
         borderLt = document.getElementById("border_lt"),
         borderRt = document.getElementById("border_rt"),
         borderLb = document.getElementById("border_lb"),
-        borderRb = document.getElementById("border_rb");
+        borderRb = document.getElementById("border_rb"),
+        cutSize = document.getElementById("cut_size");
+      this.setStyle(cutSize, {
+        position: "absolute",
+        top:
+          this.cutStartY +
+          this.sketchHeight / 2 -
+          2 * this.borderWidth -
+          12 +
+          "px",
+        left: this.cutStartX + this.sketchWidth / 2 - this.borderWidth + "px",
+        background: "rgba(0,0,0,0.8)",
+        color: "white",
+      });
       this.setStyle(borderLeft, {
         width: this.borderWidth + "px",
         height: this.cutHeight + "px",
