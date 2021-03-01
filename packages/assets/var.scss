@@ -84,10 +84,10 @@ html, body{
   padding: 10px; 
   font-size: 20px;
   line-height: 20px;
-  cursor: url("./forbid.cur"), auto;
+  cursor: url("./forbid.cur") 8 20, auto;
 }
 .scrawl{
-  cursor: url("./pen.cur"), auto;
+  cursor: url("./pen.cur") 8 20, auto;
 }
 .modal_close{
   position: absolute;
