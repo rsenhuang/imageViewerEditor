@@ -832,32 +832,8 @@ export default {
           (1 / this.scale) * (e.clientX - canvasPosition.left - this.center.x),
         oy =
           (1 / this.scale) * (e.clientY - canvasPosition.top - this.center.y);
-      // switch (this.direction) {
-      //   case 1:
-      //     break;
-      //   case 2:
-      //     oy =
-      //       (1 / this.scale) *
-      //       (e.clientX - canvasPosition.left - this.center.x);
-      //     ox =
-      //       (1 / this.scale) * (e.clientY - canvasPosition.top - this.center.y);
-      //     break;
-      //   case 3:
-      //     ox =
-      //       (1 / this.scale) *
-      //       (e.clientX - canvasPosition.left + this.center.x);
-      //     oy =
-      //       (1 / this.scale) * (e.clientY - canvasPosition.top + this.center.y);
-      //     break;
-      //   case 4:
-      //     oy =
-      //       (1 / this.scale) *
-      //       (e.clientX - canvasPosition.left + this.center.x);
-      //     ox =
-      //       (1 / this.scale) * (e.clientY - canvasPosition.top + this.center.y);
-      //     break;
-      // }
-      cxt.moveTo(ox, oy);
+      let start = this.computedDrawLine(ox, oy);
+      cxt.moveTo(start.x, start.y);
       cxt.strokeStyle = "red";
       canvas.onmousemove = (event) => {
         let ox2 =
@@ -866,11 +842,36 @@ export default {
           oy2 =
             (1 / this.scale) *
             (event.clientY - canvasPosition.top - this.center.y);
-        cxt.lineTo(ox2, oy2);
+        let moveS = this.computedDrawLine(ox2, oy2);
+        cxt.lineTo(moveS.x, moveS.y);
         cxt.stroke();
       };
       canvas.onmouseup = () => {
         canvas.onmousemove = null;
+      };
+    },
+    // 涂鸦路线
+    computedDrawLine(x, y) {
+      let tmp = x;
+      switch (this.direction) {
+        case 1:
+          break;
+        case 2:
+          x = y;
+          y = -tmp;
+          break;
+        case 3:
+          x = -x;
+          y = -y;
+          break;
+        case 4:
+          x = -y;
+          y = tmp;
+          break;
+      }
+      return {
+        x,
+        y,
       };
     },
     // 生成图片
