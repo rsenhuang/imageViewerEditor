@@ -1,6 +1,6 @@
 {
   "name": "image-viewer-editor",
-  "version": "1.2.11",
+  "version": "1.2.12",
   "private": false,
   "main": "packages/index.js",
   "keywords": [
