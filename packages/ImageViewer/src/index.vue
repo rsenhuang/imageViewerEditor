@@ -117,8 +117,14 @@
         <div :class="[endImage ? 'act_btn' : 'disabled']"
              @click="handleSave">
           <svg class="icon"
+               v-if="!saving"
                aria-hidden="true">
             <use xlink:href="#icon-baocun" />
+          </svg>
+          <svg class="icon loading"
+               v-else
+               aria-hidden="true">
+            <use xlink:href="#icon-jiazai" />
           </svg>
           <!-- 保存 -->
         </div>
@@ -156,6 +162,11 @@ export default {
     appendToBody: {
       type: Boolean,
       default: true,
+    },
+    // 保存状态
+    saving: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {

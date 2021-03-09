@@ -3,7 +3,9 @@
     <div @click="toggleShow">{{ show ? '关闭' : '打开' }}</div>
     <ImageViewer :imgUrl="imgList[0]"
                  :visible="show"
-                 @closed="show = false" />
+                 :saving="saving"
+                 @closed="show = false"
+                 @save="handleSave" />
   </div>
 </template>
 
@@ -20,11 +22,18 @@ export default {
       imgList: [four],
       active: 0,
       show: true,
+      saving: false,
     };
   },
   methods: {
     toggleShow() {
       this.show = !this.show;
+    },
+    handleSave() {
+      this.saving = true;
+      setTimeout(() => {
+        this.saving = false;
+      }, 2000);
     },
   },
 };
